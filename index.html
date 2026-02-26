@@ -1,0 +1,5008 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caltryx — AI Cost Observability & Guardrail Infrastructure</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=DM+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --cream: #F5F2ED;
+      --cream-dark: #EDE9E2;
+      --dark: #1C1C1C;
+      --dark-soft: #2D2D2D;
+      --muted: #6B6560;
+      --accent: #2D5BE3;
+      --accent-light: #3D6BF3;
+      --accent-soft: rgba(45, 91, 227, 0.08);
+      --border: rgba(28, 28, 28, 0.12);
+      --serif: 'Playfair Display', Georgia, serif;
+      --sans: 'DM Sans', sans-serif;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--sans);
+      background: var(--cream);
+      color: var(--dark);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      cursor: none;
+    }
+
+    /* ── CUSTOM CURSOR ── */
+    #cursor {
+      position: fixed;
+      z-index: 9999;
+      pointer-events: none;
+      width: 12px;
+      height: 12px;
+      background: var(--accent);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s, width 0.3s, height 0.3s, background 0.3s;
+      mix-blend-mode: multiply;
+    }
+
+    #cursor-ring {
+      position: fixed;
+      z-index: 9998;
+      pointer-events: none;
+      width: 36px;
+      height: 36px;
+      border: 1.5px solid rgba(45, 91, 227, 0.4);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: transform 0.12s ease, width 0.3s, height 0.3s;
+    }
+
+    body:hover #cursor {
+      width: 12px;
+      height: 12px;
+    }
+
+    .cursor-hover #cursor {
+      width: 48px;
+      height: 48px;
+      background: rgba(45, 91, 227, 0.15);
+    }
+
+    .cursor-hover #cursor-ring {
+      width: 0;
+      height: 0;
+    }
+
+    /* ── THREE.JS CANVAS ── */
+    #hero-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.7;
+    }
+
+    /* ── NAVBAR ── */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 48px;
+      background: rgba(245, 242, 237, 0.88);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      transition: padding 0.3s, box-shadow 0.3s;
+    }
+
+    nav.scrolled {
+      padding: 12px 48px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    }
+
+    .nav-logo {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--dark);
+      text-decoration: none;
+      letter-spacing: -0.3px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .nav-logo span {
+      color: var(--accent);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 36px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--dark);
+      text-decoration: none;
+      opacity: 0.65;
+      transition: opacity 0.2s;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--accent);
+      transform: scaleX(0);
+      transition: transform 0.25s;
+      transform-origin: left;
+    }
+
+    .nav-links a:hover {
+      opacity: 1;
+    }
+
+    .nav-links a:hover::after {
+      transform: scaleX(1);
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn-ghost {
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--dark);
+      background: none;
+      border: none;
+      cursor: none;
+      padding: 10px 18px;
+      opacity: 0.65;
+      transition: opacity 0.2s;
+      text-decoration: none;
+    }
+
+    .btn-ghost:hover {
+      opacity: 1;
+    }
+
+    .btn-pill {
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      background: var(--dark);
+      border: none;
+      border-radius: 100px;
+      padding: 11px 22px;
+      cursor: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-pill::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .btn-pill:hover::before {
+      opacity: 1;
+    }
+
+    .btn-pill:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-pill .arrow {
+      width: 18px;
+      height: 18px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      transition: transform 0.2s;
+    }
+
+    .btn-pill:hover .arrow {
+      transform: translateX(3px);
+    }
+
+    .btn-pill-accent {
+      background: var(--accent);
+    }
+
+    .btn-pill-accent:hover {
+      background: var(--accent-light);
+      box-shadow: 0 8px 32px rgba(45, 91, 227, 0.35);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 140px 48px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(45, 91, 227, 0.1);
+      color: var(--accent);
+      border-radius: 100px;
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 28px;
+      border: 1px solid rgba(45, 91, 227, 0.2);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.8s 0.2s ease forwards;
+      position: relative;
+      z-index: 1;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    .hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(44px, 6.5vw, 84px);
+      font-weight: 500;
+      line-height: 1.08;
+      letter-spacing: -2px;
+      max-width: 900px;
+      margin-bottom: 28px;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeUp 0.9s 0.35s ease forwards;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .hero h1 .word {
+      display: inline-block;
+      transition: transform 0.3s;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: var(--muted);
+      line-height: 1.65;
+      max-width: 480px;
+      margin-bottom: 48px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.9s 0.5s ease forwards;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-input-wrap {
+      display: flex;
+      gap: 0;
+      align-items: center;
+      background: #fff;
+      border-radius: 100px;
+      padding: 6px 6px 6px 24px;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05),
+        0 0 0 1px var(--border);
+      max-width: 580px;
+      width: 100%;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.9s 0.65s ease forwards;
+      position: relative;
+      z-index: 1;
+      transition: box-shadow 0.3s;
+    }
+
+    .hero-input-wrap:focus-within {
+      box-shadow: 0 8px 40px rgba(45, 91, 227, 0.15), 0 0 0 2px var(--accent);
+    }
+
+    .hero-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: none;
+      font-family: var(--sans);
+      font-size: 15px;
+      color: var(--dark);
+    }
+
+    .hero-input::placeholder {
+      color: var(--muted);
+    }
+
+    .hero-input-btn {
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      background: var(--accent);
+      border: none;
+      border-radius: 100px;
+      padding: 13px 24px;
+      cursor: none;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s, transform 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-input-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(255, 255, 255, 0.3), transparent);
+      transform: scale(0);
+      transition: transform 0.4s;
+      border-radius: 100px;
+    }
+
+    .hero-input-btn:active::after {
+      transform: scale(2);
+      opacity: 0;
+    }
+
+    .hero-input-btn:hover {
+      background: var(--accent-light);
+    }
+
+    .hero-sub-note {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 16px;
+      margin-bottom: 64px;
+      opacity: 0;
+      animation: fadeUp 0.9s 0.8s ease forwards;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── FLOATING PARTICLES (CSS) ── */
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      animation: floatParticle linear infinite;
+      opacity: 0;
+    }
+
+    @keyframes floatParticle {
+      0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
+      }
+
+      10% {
+        opacity: 0.6;
+      }
+
+      90% {
+        opacity: 0.3;
+      }
+
+      100% {
+        transform: translateY(-100px) rotate(720deg);
+        opacity: 0;
+      }
+    }
+
+    /* ── 3D PDF CARD ── */
+    .hero-3d-wrap {
+      perspective: 1200px;
+      width: 100%;
+      max-width: 840px;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeUp 0.9s 0.95s ease forwards;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-3d-card {
+      transform-style: preserve-3d;
+      transform: rotateX(8deg) rotateY(-3deg);
+      transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 60px 120px rgba(0, 0, 0, 0.2), 0 20px 40px rgba(0, 0, 0, 0.1),
+        0 0 0 1px var(--border);
+      background: #fff;
+    }
+
+    .hero-3d-card:hover {
+      transform: rotateX(2deg) rotateY(0deg) translateY(-8px);
+    }
+
+    /* Shimmer effect on card */
+    .hero-3d-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.4) 50%, transparent 60%);
+      transform: translateX(-100%);
+      animation: shimmer 3s ease infinite;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    @keyframes shimmer {
+      0% {
+        transform: translateX(-100%);
+      }
+
+      30%,
+      100% {
+        transform: translateX(200%);
+      }
+    }
+
+    .pdf-header {
+      background: var(--dark);
+      color: #fff;
+      padding: 22px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .pdf-header-title {
+      font-family: var(--serif);
+      font-size: 19px;
+      font-weight: 500;
+    }
+
+    .pdf-header-meta {
+      font-size: 12px;
+      opacity: 0.45;
+      margin-top: 2px;
+    }
+
+    .pdf-header-badge {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .pdf-body {
+      padding: 24px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .pdf-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .pdf-issue-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 13px 16px;
+      background: var(--cream);
+      border-radius: 10px;
+      border-left: 3px solid #E85C5C;
+    }
+
+    .pdf-issue-row.fix {
+      border-left-color: var(--accent);
+      background: rgba(45, 91, 227, 0.04);
+    }
+
+    .pdf-issue-row.high {
+      border-left-color: #F59E0B;
+      background: rgba(245, 158, 11, 0.05);
+    }
+
+    .pdf-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 5px;
+    }
+
+    .pdf-dot-red {
+      background: #E85C5C;
+    }
+
+    .pdf-dot-blue {
+      background: var(--accent);
+    }
+
+    .pdf-dot-yellow {
+      background: #F59E0B;
+    }
+
+    .pdf-issue-text {
+      font-size: 13px;
+      color: var(--dark);
+      line-height: 1.5;
+    }
+
+    .pdf-builder-box {
+      background: var(--dark);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-top: 2px;
+    }
+
+    .pdf-builder-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.35);
+      margin-bottom: 10px;
+    }
+
+    .pdf-builder-line {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.75);
+      margin-bottom: 6px;
+      font-family: monospace;
+    }
+
+    .pdf-builder-line span {
+      color: #6EE7A0;
+    }
+
+    /* ── MARQUEE ── */
+    .marquee-section {
+      padding: 28px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+      background: var(--cream-dark);
+    }
+
+    .marquee-label {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+    }
+
+    .marquee-track {
+      display: flex;
+      gap: 56px;
+      animation: marquee 22s linear infinite;
+      white-space: nowrap;
+    }
+
+    .marquee-item {
+      font-family: var(--serif);
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--dark);
+      opacity: 0.35;
+      flex-shrink: 0;
+    }
+
+    @keyframes marquee {
+      0% {
+        transform: translateX(0);
+      }
+
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+
+    /* ── SECTION COMMONS ── */
+    section {
+      padding: 100px 48px;
+    }
+
+    .section-tag {
+      display: inline-block;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      font-family: var(--serif);
+      font-size: clamp(36px, 4vw, 54px);
+      font-weight: 500;
+      line-height: 1.15;
+      letter-spacing: -1px;
+      margin-bottom: 16px;
+    }
+
+    .section-title em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .section-sub {
+      font-size: 17px;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 520px;
+    }
+
+    /* ── SCROLL REVEAL VARIANTS ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-50px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal-left.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .reveal-right {
+      opacity: 0;
+      transform: translateX(50px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal-right.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .reveal-scale {
+      opacity: 0;
+      transform: scale(0.92);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal-scale.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .reveal-delay-1 {
+      transition-delay: 0.1s;
+    }
+
+    .reveal-delay-2 {
+      transition-delay: 0.2s;
+    }
+
+    .reveal-delay-3 {
+      transition-delay: 0.3s;
+    }
+
+    .reveal-delay-4 {
+      transition-delay: 0.4s;
+    }
+
+    .reveal-delay-5 {
+      transition-delay: 0.5s;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .how-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: start;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .how-left {
+      position: sticky;
+      top: 120px;
+    }
+
+    .how-right {
+      display: flex;
+      flex-direction: column;
+      gap: 60px;
+    }
+
+    /* 3D Step Visual */
+    .step-3d-wrap {
+      perspective: 800px;
+    }
+
+    .step-visual {
+      width: 100%;
+      border-radius: 20px;
+      overflow: hidden;
+      aspect-ratio: 4/3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 80px;
+      flex-shrink: 0;
+      transform-style: preserve-3d;
+      transition: background 0.6s ease, transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.15), 0 10px 30px rgba(0, 0, 0, 0.08);
+      position: relative;
+    }
+
+    .step-visual::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .sv-1 {
+      background: linear-gradient(135deg, #EEF2FF 0%, #C7D2FE 100%);
+    }
+
+    .sv-2 {
+      background: linear-gradient(135deg, #EDE9F5 0%, #C4B5FD 100%);
+    }
+
+    .sv-3 {
+      background: linear-gradient(135deg, #ECFDF5 0%, #A7F3D0 100%);
+    }
+
+    .how-step {
+      opacity: 0.3;
+      padding: 32px;
+      border-radius: 20px;
+      background: transparent;
+      cursor: pointer;
+      transition: opacity 0.5s, background 0.5s, box-shadow 0.5s, transform 0.5s;
+      transform: translateX(10px);
+    }
+
+    .how-step.active {
+      opacity: 1;
+      background: #fff;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.06);
+      transform: translateX(0);
+    }
+
+    .step-num {
+      font-family: var(--serif);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+    }
+
+    .step-title {
+      font-family: var(--serif);
+      font-size: 26px;
+      font-weight: 500;
+      line-height: 1.25;
+      margin-bottom: 12px;
+    }
+
+    .step-desc {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--cream);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--dark);
+      border: 1px solid var(--border);
+      margin-top: 16px;
+    }
+
+    /* ── PROBLEM CARDS ── */
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 56px;
+    }
+
+    .problem-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 28px;
+      border: 1px solid var(--border);
+      transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.4s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .problem-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), #7C3AED);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s;
+    }
+
+    .problem-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .problem-card:hover {
+      transform: translateY(-8px) rotateX(2deg);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.12);
+    }
+
+    .problem-icon {
+      font-size: 28px;
+      margin-bottom: 16px;
+    }
+
+    .problem-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .problem-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── REPORT ── */
+    .report-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .report-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-top: 40px;
+    }
+
+    .report-item {
+      display: flex;
+      gap: 20px;
+      padding: 24px 0;
+      border-top: 1px solid var(--border);
+      transition: background 0.3s;
+    }
+
+    .report-item:last-child {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .report-item:hover {
+      padding-left: 8px;
+    }
+
+    .report-num {
+      font-family: var(--serif);
+      font-size: 28px;
+      font-weight: 500;
+      color: var(--accent);
+      opacity: 0.25;
+      line-height: 1;
+      flex-shrink: 0;
+      width: 32px;
+      transition: opacity 0.3s;
+    }
+
+    .report-item:hover .report-num {
+      opacity: 0.8;
+    }
+
+    .report-item-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .report-item-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* 3D Report Card */
+    .report-3d-wrap {
+      perspective: 1000px;
+    }
+
+    .report-visual {
+      border-radius: 24px;
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid var(--border);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.1);
+      transform: rotateY(-8deg) rotateX(4deg);
+      transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+      transform-style: preserve-3d;
+    }
+
+    .report-3d-wrap:hover .report-visual {
+      transform: rotateY(0deg) rotateX(0deg) translateY(-8px);
+    }
+
+    .rv-inner {
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .rv-header {
+      font-family: var(--serif);
+      font-size: 17px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .rv-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--cream);
+      border-radius: 10px;
+      transition: transform 0.2s;
+    }
+
+    .rv-row:hover {
+      transform: translateX(4px);
+    }
+
+    .rv-row.accent-row {
+      background: rgba(45, 91, 227, 0.05);
+      border: 1px solid rgba(45, 91, 227, 0.15);
+    }
+
+    .rv-icon {
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .rv-text-main {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .rv-text-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .rv-builder {
+      background: var(--dark);
+      border-radius: 10px;
+      padding: 16px;
+      margin-top: 4px;
+    }
+
+    .rv-builder-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.35);
+      margin-bottom: 10px;
+    }
+
+    .rv-builder-line {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.75);
+      margin-bottom: 5px;
+      font-family: monospace;
+      line-height: 1.4;
+    }
+
+    .rv-builder-line .cmd {
+      color: #93C5FD;
+    }
+
+    .rv-builder-line .val {
+      color: #6EE7A0;
+    }
+
+    /* ── PRICING ── */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      max-width: 760px;
+      margin: 48px auto 0;
+    }
+
+    .pricing-card {
+      border-radius: 24px;
+      padding: 36px;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.4s;
+      position: relative;
+      overflow: hidden;
+      transform-style: preserve-3d;
+    }
+
+    .pricing-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 0%, rgba(45, 91, 227, 0.06), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .pricing-card:hover::before {
+      opacity: 1;
+    }
+
+    .pricing-card:hover {
+      transform: translateY(-12px) rotateX(4deg);
+      box-shadow: 0 32px 80px rgba(0, 0, 0, 0.12);
+    }
+
+    .pricing-card.featured {
+      background: var(--dark);
+      border-color: var(--dark);
+      color: #fff;
+    }
+
+    .pricing-card.featured:hover {
+      box-shadow: 0 32px 80px rgba(28, 28, 28, 0.3);
+    }
+
+    .pricing-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: #fff;
+      border-radius: 100px;
+      padding: 4px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .pricing-label {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      opacity: 0.5;
+      margin-bottom: 20px;
+    }
+
+    .pricing-price {
+      font-family: var(--serif);
+      font-size: 52px;
+      font-weight: 500;
+      line-height: 1;
+      margin-bottom: 8px;
+      letter-spacing: -1px;
+    }
+
+    .pricing-period {
+      font-size: 14px;
+      opacity: 0.5;
+      margin-bottom: 28px;
+    }
+
+    .pricing-features {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .pricing-feature {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+    }
+
+    .pricing-check {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .pricing-card.featured .pricing-check {
+      color: #6EE7A0;
+    }
+
+    .pricing-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 100px;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      font-family: var(--sans);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: none;
+      transition: background 0.2s, transform 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pricing-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .pricing-btn:hover::after {
+      opacity: 1;
+    }
+
+    .pricing-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .pricing-card.featured .pricing-btn {
+      background: #fff;
+      color: var(--dark);
+    }
+
+    .pricing-note {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 20px;
+    }
+
+    /* ── NOT GRID ── */
+    .not-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 48px;
+    }
+
+    .not-card {
+      border-radius: 16px;
+      padding: 24px;
+      border: 1.5px solid var(--border);
+      transition: transform 0.3s;
+    }
+
+    .not-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .not-card.is-not {
+      background: rgba(232, 92, 92, 0.04);
+      border-color: rgba(232, 92, 92, 0.2);
+    }
+
+    .not-card.is-yes {
+      background: rgba(45, 91, 227, 0.04);
+      border-color: rgba(45, 91, 227, 0.2);
+    }
+
+    .not-card-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+    }
+
+    .not-card.is-not .not-card-label {
+      color: #E85C5C;
+    }
+
+    .not-card.is-yes .not-card-label {
+      color: var(--accent);
+    }
+
+    .not-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .not-list-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--muted);
+      transition: color 0.2s, transform 0.2s;
+    }
+
+    .not-list-item:hover {
+      color: var(--dark);
+      transform: translateX(4px);
+    }
+
+    /* ── STATS ── */
+    .stats-section {
+      background: var(--dark);
+      color: #fff;
+      border-radius: 28px;
+      margin: 0 48px;
+      padding: 80px 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stats-section::before {
+      content: '';
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(45, 91, 227, 0.2), transparent 60%);
+      top: -100px;
+      right: -100px;
+      pointer-events: none;
+    }
+
+    .stats-section::after {
+      content: '';
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(124, 58, 237, 0.15), transparent 60%);
+      bottom: -80px;
+      left: -80px;
+      pointer-events: none;
+    }
+
+    .stats-title {
+      font-family: var(--serif);
+      font-size: clamp(32px, 4vw, 48px);
+      font-weight: 500;
+      line-height: 1.2;
+      letter-spacing: -0.8px;
+      margin-bottom: 64px;
+      max-width: 500px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stats-title em {
+      font-style: italic;
+      color: #93C5FD;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 48px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stat-num {
+      font-family: var(--serif);
+      font-size: clamp(40px, 4vw, 56px);
+      font-weight: 500;
+      line-height: 1;
+      margin-bottom: 10px;
+      letter-spacing: -1px;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.4);
+      line-height: 1.4;
+    }
+
+    /* Counter animation */
+    .count-up {
+      display: inline-block;
+    }
+
+    /* ── FAQ ── */
+    .faq-section {
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    .faq-list {
+      margin-top: 56px;
+    }
+
+    .faq-item {
+      border-top: 1px solid var(--border);
+      cursor: none;
+    }
+
+    .faq-item:last-child {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .faq-q {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 0;
+      font-size: 17px;
+      font-weight: 500;
+      gap: 20px;
+      user-select: none;
+      transition: color 0.2s;
+    }
+
+    .faq-item:hover .faq-q {
+      color: var(--accent);
+    }
+
+    .faq-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+      transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+      color: var(--muted);
+    }
+
+    .faq-item.open .faq-icon {
+      background: var(--dark);
+      color: #fff;
+      border-color: var(--dark);
+      transform: rotate(45deg);
+    }
+
+    .faq-a {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.7;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1), padding 0.3s;
+    }
+
+    .faq-item.open .faq-a {
+      max-height: 200px;
+      padding-bottom: 24px;
+    }
+
+    /* ── FINAL CTA ── */
+    .final-cta {
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 100px 48px 120px;
+    }
+
+    .final-cta h2 {
+      font-family: var(--serif);
+      font-size: clamp(40px, 5vw, 64px);
+      font-weight: 500;
+      line-height: 1.12;
+      letter-spacing: -1px;
+      margin-bottom: 20px;
+    }
+
+    .final-cta h2 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .final-cta p {
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 40px;
+    }
+
+    .final-input-wrap {
+      display: flex;
+      gap: 0;
+      align-items: center;
+      background: #fff;
+      border-radius: 100px;
+      padding: 6px 6px 6px 24px;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px var(--border);
+      max-width: 520px;
+      width: 100%;
+      margin: 0 auto;
+      transition: box-shadow 0.3s;
+    }
+
+    .final-input-wrap:focus-within {
+      box-shadow: 0 8px 40px rgba(45, 91, 227, 0.15), 0 0 0 2px var(--accent);
+    }
+
+    .final-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: none;
+      font-family: var(--sans);
+      font-size: 15px;
+      color: var(--dark);
+    }
+
+    .final-input::placeholder {
+      color: var(--muted);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--dark);
+      color: #fff;
+      padding: 72px 48px 40px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.5fr repeat(3, 1fr);
+      gap: 48px;
+      padding-bottom: 56px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 40px;
+    }
+
+    .footer-logo {
+      font-family: var(--serif);
+      font-size: 24px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+
+    .footer-tagline {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.4);
+      line-height: 1.5;
+      max-width: 200px;
+    }
+
+    .footer-col-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.35);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 20px;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .footer-links a {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.5);
+      text-decoration: none;
+      transition: color 0.2s, transform 0.2s;
+      display: inline-block;
+    }
+
+    .footer-links a:hover {
+      color: #fff;
+      transform: translateX(4px);
+    }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-copy {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.25);
+    }
+
+    .footer-legal {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.18);
+    }
+
+    /* ── SCROLL PROGRESS BAR ── */
+    #progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), #7C3AED);
+      z-index: 200;
+      transition: width 0.1s;
+      box-shadow: 0 0 8px rgba(45, 91, 227, 0.5);
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(24px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.5;
+        transform: scale(0.8);
+      }
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-16px);
+      }
+    }
+
+    @keyframes rotate3d {
+      0% {
+        transform: rotateY(0deg);
+      }
+
+      100% {
+        transform: rotateY(360deg);
+      }
+    }
+
+    @keyframes glowPulse {
+
+      0%,
+      100% {
+        box-shadow: 0 0 20px rgba(45, 91, 227, 0.2);
+      }
+
+      50% {
+        box-shadow: 0 0 60px rgba(45, 91, 227, 0.4);
+      }
+    }
+
+    /* ── PRICING 4-GRID ── */
+    .pricing-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .pricing-tier-icon {
+      font-size: 26px;
+      margin-bottom: 14px;
+    }
+
+    .pricing-card.pricing-enterprise {
+      background: var(--dark);
+      color: #fff;
+      border-color: var(--dark);
+    }
+
+    .pricing-card.pricing-enterprise .pricing-label {
+      color: rgba(255, 255, 255, 0.45);
+    }
+
+    .pricing-card.pricing-enterprise .pricing-period {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .pricing-card.pricing-enterprise .pricing-check {
+      color: #6EE7A0;
+    }
+
+    .pricing-card.pricing-enterprise .pricing-feature {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .pricing-btn-enterprise {
+      background: rgba(255, 255, 255, 0.1) !important;
+      color: #fff !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
+    }
+
+    .pricing-btn-enterprise:hover {
+      background: rgba(255, 255, 255, 0.2) !important;
+    }
+
+    /* ── DASHBOARD MOCKUP ── */
+    .hero-3d-card {
+      background: #fff;
+    }
+
+    .dash-topbar {
+      background: #1C1C1C;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .dash-topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .dash-window-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .wd {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      display: block;
+    }
+
+    .wd-r {
+      background: #FF6057;
+    }
+
+    .wd-y {
+      background: #FFBD2E;
+    }
+
+    .wd-g {
+      background: #27C93F;
+    }
+
+    .dash-topbar-title {
+      font-family: var(--serif);
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.6);
+      letter-spacing: 0.2px;
+    }
+
+    .dash-live-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 100px;
+      padding: 4px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #10B981;
+    }
+
+    .dash-live-dot {
+      width: 6px;
+      height: 6px;
+      background: #10B981;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    .dash-layout {
+      display: grid;
+      grid-template-columns: 148px 1fr;
+      min-height: 300px;
+    }
+
+    .dash-sidebar {
+      background: #F9F8F6;
+      border-right: 1px solid var(--border);
+      padding: 14px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .dash-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      transition: background 0.2s;
+      cursor: default;
+      white-space: nowrap;
+    }
+
+    .dash-nav span {
+      font-size: 13px;
+      filter: grayscale(1);
+      opacity: 0.6;
+    }
+
+    .dash-nav.active {
+      background: rgba(45, 91, 227, 0.08);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .dash-nav.active span {
+      filter: none;
+      opacity: 1;
+    }
+
+    .dash-main {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #FAFAF9;
+    }
+
+    .dash-stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .dash-stat-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+    }
+
+    .dash-stat-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .dash-stat-val {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--dark);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .dash-stat-delta {
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .dash-delta-up {
+      color: #F59E0B;
+    }
+
+    .dash-delta-good {
+      color: #10B981;
+    }
+
+    .dash-budget-bar {
+      height: 4px;
+      background: rgba(28, 28, 28, 0.08);
+      border-radius: 2px;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+
+    .dash-budget-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .dash-mid-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .dash-chart-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 14px;
+      border: 1px solid var(--border);
+    }
+
+    .dash-card-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 10px;
+    }
+
+    .dash-card-sub {
+      font-weight: 400;
+      color: var(--muted);
+      font-size: 11px;
+      margin-left: 4px;
+    }
+
+    .dash-bar-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .dash-bar-group {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      height: 64px;
+    }
+
+    .dash-bar-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      height: 100%;
+      justify-content: flex-end;
+      gap: 4px;
+    }
+
+    .dash-bar-fill {
+      width: 100%;
+      border-radius: 3px 3px 0 0;
+      min-height: 4px;
+    }
+
+    .dash-bar-lbl {
+      font-size: 9px;
+      color: var(--muted);
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    .dash-bar-amounts {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dash-bar-amounts span {
+      flex: 1;
+      text-align: center;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .dash-tenant-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .dash-tenant-row {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .dash-tenant-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .dash-tenant-name {
+      font-size: 11px;
+      color: var(--muted);
+      width: 68px;
+      flex-shrink: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .dash-tenant-bar-wrap {
+      flex: 1;
+      height: 5px;
+      background: rgba(28, 28, 28, 0.06);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .dash-tenant-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--accent), rgba(45, 91, 227, 0.4));
+      transition: width 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .dash-tenant-cost {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--dark);
+      width: 32px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .dash-alert-pill {
+      margin-top: 10px;
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      border-radius: 8px;
+      padding: 7px 10px;
+      font-size: 11px;
+      color: #92400E;
+      font-weight: 500;
+    }
+
+    /* ── PAGE TRANSITIONS ── */
+    #page-transition-veil {
+      position: fixed;
+      inset: 0;
+      z-index: 9000;
+      pointer-events: none;
+      background: var(--dark);
+      clip-path: inset(100% 0 0 0);
+      transition: clip-path 0.45s cubic-bezier(0.76, 0, 0.24, 1);
+    }
+
+    #page-transition-veil.entering {
+      clip-path: inset(0% 0 0 0);
+    }
+
+    #page-transition-veil.exiting {
+      clip-path: inset(0 0 100% 0);
+      transition: clip-path 0.4s cubic-bezier(0.76, 0, 0.24, 1);
+    }
+
+    /* ── NEW PRICING CARD STYLE ── */
+    .pricing-showcase {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 0;
+      max-width: 980px;
+      margin: 56px auto 0;
+      perspective: 1400px;
+      position: relative;
+    }
+
+    .pc-card {
+      background: #fff;
+      border-radius: 28px;
+      border: 1.5px solid var(--border);
+      padding: 32px 28px 28px;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      width: 296px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.55s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.55s, opacity 0.4s;
+      cursor: default;
+    }
+
+    .pc-card-left {
+      transform: rotate(-6deg) translateX(48px) translateY(28px);
+      z-index: 1;
+      opacity: 0.82;
+      box-shadow: -8px 20px 60px rgba(0, 0, 0, 0.1);
+    }
+
+    .pc-card-center {
+      z-index: 3;
+      transform: translateY(-28px) scale(1.03);
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.22), 0 0 0 2px var(--accent);
+      background: var(--dark);
+      color: #fff;
+    }
+
+    .pc-card-right {
+      transform: rotate(6deg) translateX(-48px) translateY(28px);
+      z-index: 2;
+      opacity: 0.88;
+      box-shadow: 8px 20px 60px rgba(0, 0, 0, 0.1);
+    }
+
+    .pricing-showcase:hover .pc-card-left {
+      transform: rotate(-3deg) translateX(24px) translateY(12px);
+      opacity: 0.92;
+    }
+
+    .pricing-showcase:hover .pc-card-right {
+      transform: rotate(3deg) translateX(-24px) translateY(12px);
+      opacity: 0.95;
+    }
+
+    .pricing-showcase:hover .pc-card-center {
+      transform: translateY(-36px) scale(1.05);
+    }
+
+    .pc-toggle {
+      display: flex;
+      background: rgba(28, 28, 28, 0.07);
+      border-radius: 100px;
+      padding: 4px;
+      gap: 2px;
+      margin-bottom: 24px;
+      width: fit-content;
+    }
+
+    .pc-toggle-btn {
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 600;
+      border: none;
+      border-radius: 100px;
+      padding: 6px 16px;
+      cursor: none;
+      background: none;
+      color: var(--muted);
+      transition: all 0.25s;
+    }
+
+    .pc-toggle-btn.active {
+      background: var(--dark);
+      color: #fff;
+    }
+
+    .pc-card-center .pc-toggle {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .pc-card-center .pc-toggle-btn.active {
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+    }
+
+    .pc-card-center .pc-toggle-btn {
+      color: rgba(255, 255, 255, 0.45);
+    }
+
+    .pc-save-badge {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: #F59E0B;
+      color: #000;
+      font-size: 11px;
+      font-weight: 800;
+      border-radius: 100px;
+      padding: 4px 10px;
+    }
+
+    .pc-popular-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(16, 185, 129, 0.12);
+      color: #059669;
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      border-radius: 100px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      width: fit-content;
+    }
+
+    .pc-active-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #F59E0B;
+      margin-bottom: 10px;
+    }
+
+    .pc-plan-name {
+      font-family: var(--serif);
+      font-size: 20px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .pc-card-center .pc-plan-name {
+      color: #fff;
+    }
+
+    .pc-price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 2px;
+    }
+
+    .pc-price-old {
+      font-family: var(--serif);
+      font-size: 26px;
+      font-weight: 500;
+      text-decoration: line-through;
+      opacity: 0.35;
+      color: var(--muted);
+    }
+
+    .pc-card-center .pc-price-old {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .pc-price-main {
+      font-family: var(--serif);
+      font-size: 42px;
+      font-weight: 500;
+      line-height: 1;
+      letter-spacing: -1.5px;
+    }
+
+    .pc-card-center .pc-price-main {
+      color: #fff;
+    }
+
+    .pc-price-meta {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .pc-card-center .pc-price-meta {
+      color: rgba(255, 255, 255, 0.45);
+    }
+
+    .pc-price-billed {
+      font-size: 11px;
+      color: var(--muted);
+      opacity: 0.55;
+      margin-bottom: 16px;
+    }
+
+    .pc-card-center .pc-price-billed {
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    .pc-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.55;
+      padding-bottom: 16px;
+      margin-bottom: 14px;
+      border-bottom: 1.5px dotted rgba(28, 28, 28, 0.12);
+    }
+
+    .pc-card-center .pc-desc {
+      color: rgba(255, 255, 255, 0.5);
+      border-bottom-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .pc-features {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      margin-bottom: 24px;
+      flex: 1;
+    }
+
+    .pc-feat {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 13px;
+      color: var(--dark);
+    }
+
+    .pc-feat-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .pc-feat.included .pc-feat-icon {
+      background: #22C55E;
+      color: #fff;
+    }
+
+    .pc-feat.excluded {
+      opacity: 0.3;
+    }
+
+    .pc-feat.excluded .pc-feat-icon {
+      background: none;
+      border: 1.5px solid rgba(28, 28, 28, 0.2);
+      color: var(--muted);
+    }
+
+    .pc-card-center .pc-feat {
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .pc-card-center .pc-feat.excluded .pc-feat-icon {
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .pc-cta {
+      width: 100%;
+      padding: 13px;
+      border-radius: 100px;
+      border: none;
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: none;
+      transition: all 0.25s;
+    }
+
+    .pc-cta-light {
+      background: var(--cream-dark);
+      color: var(--dark);
+    }
+
+    .pc-cta-light:hover {
+      background: var(--dark);
+      color: #fff;
+      transform: translateY(-2px);
+    }
+
+    .pc-cta-dark {
+      background: #fff;
+      color: var(--dark);
+    }
+
+    .pc-cta-dark:hover {
+      background: var(--accent);
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(45, 91, 227, 0.35);
+    }
+
+    /* Enterprise banner row */
+    .pc-enterprise-row {
+      max-width: 980px;
+      margin: 24px auto 0;
+    }
+
+    .pc-enterprise-banner {
+      background: linear-gradient(135deg, #1C1C1C 0%, #2D1B69 100%);
+      border-radius: 20px;
+      padding: 28px 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 32px;
+      color: #fff;
+    }
+
+    .pc-ent-left h3 {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .pc-ent-left p {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.45);
+    }
+
+    .pc-ent-features {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .pc-ent-feat {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.65);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .pc-ent-feat::before {
+      content: '✓';
+      color: #10B981;
+      font-weight: 800;
+    }
+
+    .pc-ent-cta {
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1.5px solid rgba(255, 255, 255, 0.2);
+      border-radius: 100px;
+      padding: 12px 24px;
+      cursor: none;
+      white-space: nowrap;
+      transition: all 0.25s;
+      flex-shrink: 0;
+    }
+
+    .pc-ent-cta:hover {
+      background: rgba(255, 255, 255, 0.22);
+      transform: translateY(-2px);
+    }
+
+    /* ── SUBPAGE OVERLAY ── */
+    #subpage-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background: var(--cream);
+      overflow-y: auto;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(24px);
+      transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    #subpage-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateY(0);
+    }
+
+    #subpage-nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 48px;
+      background: rgba(245, 242, 237, 0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .subpage-back-btn {
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 9px 18px;
+      cursor: none;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .subpage-back-btn:hover {
+      color: var(--dark);
+      border-color: var(--dark);
+    }
+
+    .subpage {
+      display: none;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 80px 48px 120px;
+    }
+
+    .subpage.active {
+      display: block;
+    }
+
+    /* SP HERO */
+    .sp-hero {
+      margin-bottom: 72px;
+    }
+
+    .sp-h1 {
+      font-family: var(--serif);
+      font-size: clamp(40px, 5vw, 68px);
+      font-weight: 500;
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      margin-bottom: 20px;
+    }
+
+    .sp-h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .sp-lead {
+      font-size: 18px;
+      color: var(--muted);
+      line-height: 1.65;
+      max-width: 560px;
+    }
+
+    /* SP FEATURES */
+    .sp-feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .sp-feat-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .sp-feat-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+    }
+
+    .sp-feat-num {
+      font-family: var(--serif);
+      font-size: 28px;
+      font-weight: 500;
+      color: var(--accent);
+      opacity: 0.2;
+      margin-bottom: 12px;
+    }
+
+    .sp-feat-card h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .sp-feat-card p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* SP STEPS */
+    .sp-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .sp-step {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 32px;
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .sp-step:last-child {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sp-step-num {
+      font-family: var(--serif);
+      font-size: 48px;
+      font-weight: 500;
+      color: var(--accent);
+      opacity: 0.2;
+      line-height: 1;
+      padding-top: 4px;
+    }
+
+    .sp-step-body h3 {
+      font-family: var(--serif);
+      font-size: 26px;
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+
+    .sp-step-body p {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 20px;
+    }
+
+    .sp-code-block {
+      background: var(--dark);
+      border-radius: 12px;
+      padding: 20px 24px;
+      overflow-x: auto;
+    }
+
+    .sp-code-block .sp-code-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.3);
+      margin-bottom: 12px;
+    }
+
+    .sp-code-block code {
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.85);
+      line-height: 1.7;
+      display: block;
+      white-space: pre-wrap;
+    }
+
+    /* SP DOC GRID */
+    .sp-doc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+
+    .sp-doc-section {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+    }
+
+    .sp-doc-section h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .sp-tag-table {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .sp-tag-row {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 12px;
+      padding: 10px 0;
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+    }
+
+    .sp-tag-row:first-child {
+      border-top: none;
+    }
+
+    .sp-tag-key {
+      font-family: monospace;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .sp-tag-desc {
+      color: var(--muted);
+    }
+
+    /* SP DOC LINKS */
+    .sp-doc-links {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .sp-doc-link-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      cursor: none;
+      transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+    }
+
+    .sp-doc-link-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+      border-color: var(--accent);
+    }
+
+    .sp-dlc-icon {
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+
+    .sp-doc-link-card h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .sp-doc-link-card p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .sp-dlc-arrow {
+      font-size: 20px;
+      color: var(--accent);
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    /* SP BLOG */
+    .sp-blog-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    .sp-blog-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: default;
+    }
+
+    .sp-blog-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .sp-blog-tag {
+      display: inline-block;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-radius: 100px;
+      padding: 4px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+
+    .sp-blog-card h3 {
+      font-family: var(--serif);
+      font-size: 20px;
+      font-weight: 500;
+      line-height: 1.3;
+      margin-bottom: 10px;
+    }
+
+    .sp-blog-card p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .sp-blog-meta {
+      font-size: 12px;
+      color: var(--muted);
+      opacity: 0.7;
+    }
+
+    /* SP CHANGELOG */
+    .sp-changelog {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      max-width: 720px;
+    }
+
+    .sp-cl-item {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 32px;
+      padding: 32px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .sp-cl-item:last-child {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sp-cl-date {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+      padding-top: 4px;
+    }
+
+    .sp-cl-badge {
+      display: inline-block;
+      border-radius: 6px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .sp-cl-new {
+      background: rgba(16, 185, 129, 0.1);
+      color: #059669;
+    }
+
+    .sp-cl-soon {
+      background: rgba(45, 91, 227, 0.08);
+      color: var(--accent);
+    }
+
+    .sp-cl-planned {
+      background: rgba(107, 101, 96, 0.08);
+      color: var(--muted);
+    }
+
+    .sp-cl-body h3 {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .sp-cl-body p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* SP SECURITY */
+    .sp-security-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    .sp-sec-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+    }
+
+    .sp-sec-icon {
+      font-size: 28px;
+      margin-bottom: 14px;
+    }
+
+    .sp-sec-card h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .sp-sec-card p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* SP ABOUT */
+    .sp-about-body {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 64px;
+    }
+
+    .sp-about-text p {
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.75;
+      margin-bottom: 20px;
+    }
+
+    .sp-about-values {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .sp-value {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 20px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+    }
+
+    .sp-value span {
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .sp-value strong {
+      font-size: 15px;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .sp-value p {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    /* SP CONTACT */
+    .sp-contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 64px;
+    }
+
+    .sp-form-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .sp-form-row label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .sp-input {
+      font-family: var(--sans);
+      font-size: 15px;
+      color: var(--dark);
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 13px 16px;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+
+    .sp-input:focus {
+      border-color: var(--accent);
+    }
+
+    .sp-select {
+      cursor: none;
+    }
+
+    .sp-textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .sp-submit-btn {
+      font-family: var(--sans);
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      background: var(--accent);
+      border: none;
+      border-radius: 100px;
+      padding: 14px 28px;
+      cursor: none;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .sp-submit-btn:hover {
+      background: var(--accent-light);
+      transform: translateY(-2px);
+    }
+
+    .sp-contact-info {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding-top: 8px;
+    }
+
+    .sp-contact-item {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 18px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .sp-ci-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .sp-contact-item strong {
+      font-size: 14px;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .sp-contact-item p {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    /* SP LEGAL */
+    .sp-legal-body {
+      max-width: 680px;
+    }
+
+    .sp-legal-body h3 {
+      font-size: 17px;
+      font-weight: 600;
+      margin: 32px 0 10px;
+    }
+
+    .sp-legal-body h3:first-child {
+      margin-top: 0;
+    }
+
+    .sp-legal-body p {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    /* ── SUBPAGE 3D CANVAS ── */
+    .sp-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.5;
+    }
+
+    .subpage {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── SUBPAGE WAITLIST BANNER ── */
+    .sp-waitlist-banner {
+      margin-top: 80px;
+      background: var(--dark);
+      border-radius: 20px;
+      padding: 32px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+
+    .sp-wb-text {
+      font-family: var(--serif);
+      font-size: 20px;
+      font-weight: 500;
+      color: #fff;
+      line-height: 1.3;
+    }
+
+    .sp-wb-text strong {
+      color: #fff;
+    }
+
+    .sp-wb-form {
+      display: flex;
+      gap: 0;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 100px;
+      padding: 5px 5px 5px 20px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      flex-shrink: 0;
+    }
+
+    .sp-wb-input {
+      background: none;
+      border: none;
+      outline: none;
+      font-family: var(--sans);
+      font-size: 14px;
+      color: #fff;
+      width: 220px;
+    }
+
+    .sp-wb-input::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .sp-wb-btn {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--dark);
+      background: #fff;
+      border: none;
+      border-radius: 100px;
+      padding: 11px 20px;
+      cursor: none;
+      white-space: nowrap;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .sp-wb-btn:hover {
+      background: var(--accent);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .sp-wb-btn.done {
+      background: #10B981;
+      color: #fff;
+    }
+
+    /* ── X CONTACT LAYOUT ── */
+    .sp-contact-x-layout {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 48px;
+      align-items: start;
+    }
+
+    .sp-x-card {
+      background: var(--dark);
+      border-radius: 24px;
+      padding: 40px;
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+    }
+
+    .sp-x-icon {
+      font-size: 36px;
+      font-weight: 900;
+      color: #fff;
+      flex-shrink: 0;
+      line-height: 1;
+      margin-top: 4px;
+    }
+
+    .sp-x-handle {
+      font-family: var(--serif);
+      font-size: 26px;
+      font-weight: 500;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+
+    .sp-x-desc {
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.55);
+      line-height: 1.65;
+      margin-bottom: 24px;
+    }
+
+    .sp-x-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      color: var(--dark);
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 100px;
+      padding: 13px 24px;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+
+    .sp-x-btn:hover {
+      background: var(--accent);
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(45, 91, 227, 0.35);
+    }
+
+    .sp-contact-alts {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--cream);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(28, 28, 28, 0.2);
+      border-radius: 3px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- CURSOR -->
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+  <!-- PAGE TRANSITION VEIL -->
+  <div id="page-transition-veil"></div>
+
+  <!-- PROGRESS BAR -->
+  <div id="progress-bar" style="width:0%"></div>
+
+  <!-- NAVBAR -->
+  <nav id="navbar">
+    <a href="#" class="nav-logo">Caltryx<span>.</span></a>
+    <ul class="nav-links">
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#report">Features</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="#hero" class="btn-pill btn-pill-accent">Join Waitlist <span class="arrow">→</span></a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <canvas id="hero-canvas"></canvas>
+
+    <div class="hero-badge">
+      <div class="badge-dot"></div> AI Cost Observability + Guardrail Infrastructure
+    </div>
+    <h1>Know exactly what your<br>AI agents are <em>costing you.</em></h1>
+    <p>Deep cost attribution per workflow, step, and customer — plus hard budget enforcement that actually stops agents
+      when limits hit.</p>
+
+    <div class="hero-input-wrap">
+      <input class="hero-input" type="email" id="waitlist-input" placeholder="Enter your email address" />
+      <button class="hero-input-btn" id="waitlist-btn">Join the Waitlist →</button>
+    </div>
+    <div class="hero-sub-note" id="waitlist-note">Be first to know when we launch · No spam · Ever</div>
+
+    <div class="hero-3d-wrap" id="hero3d">
+      <div class="hero-3d-card" id="hero3dCard">
+
+        <!-- Dashboard top bar -->
+        <div class="dash-topbar">
+          <div class="dash-topbar-left">
+            <div class="dash-window-dots"><span class="wd wd-r"></span><span class="wd wd-y"></span><span
+                class="wd wd-g"></span></div>
+            <span class="dash-topbar-title">Caltryx<span style="color:var(--accent)">.</span> — production
+              workspace</span>
+          </div>
+          <div class="dash-live-badge"><span class="dash-live-dot"></span>Live</div>
+        </div>
+
+        <!-- Dashboard layout -->
+        <div class="dash-layout">
+
+          <!-- Sidebar -->
+          <div class="dash-sidebar">
+            <div class="dash-nav active"><span>⬛</span> Dashboard</div>
+            <div class="dash-nav"><span>🤖</span> Agents</div>
+            <div class="dash-nav"><span>🔄</span> Workflows</div>
+            <div class="dash-nav"><span>👥</span> Customers</div>
+            <div class="dash-nav"><span>🔍</span> Tracing</div>
+            <div class="dash-nav"><span>🛡️</span> Budgets</div>
+            <div class="dash-nav"><span>📱</span> Telegram</div>
+            <div class="dash-nav"><span>🔑</span> API Keys</div>
+          </div>
+
+          <!-- Main content -->
+          <div class="dash-main">
+
+            <!-- Stat cards row -->
+            <div class="dash-stats-row">
+              <div class="dash-stat-card">
+                <div class="dash-stat-label">Total Cost Today</div>
+                <div class="dash-stat-val" style="color:#F59E0B;">$142.80</div>
+                <div class="dash-stat-delta dash-delta-up">↑ 12% vs yesterday</div>
+              </div>
+              <div class="dash-stat-card">
+                <div class="dash-stat-label">Active Agents</div>
+                <div class="dash-stat-val">12</div>
+                <div class="dash-stat-delta">3 workflows running</div>
+              </div>
+              <div class="dash-stat-card">
+                <div class="dash-stat-label">Budget Used</div>
+                <div class="dash-stat-val" style="color:#EF4444;">87%</div>
+                <div class="dash-budget-bar">
+                  <div class="dash-budget-fill" style="width:87%;background:#EF4444;"></div>
+                </div>
+              </div>
+              <div class="dash-stat-card">
+                <div class="dash-stat-label">Tokens Today</div>
+                <div class="dash-stat-val" style="color:#10B981;">4.2M</div>
+                <div class="dash-stat-delta dash-delta-good">↓ 8% efficient</div>
+              </div>
+            </div>
+
+            <!-- Chart + table row -->
+            <div class="dash-mid-row">
+
+              <!-- Bar chart -->
+              <div class="dash-chart-card">
+                <div class="dash-card-title">Cost per Workflow <span class="dash-card-sub">today</span></div>
+                <div class="dash-bar-chart">
+                  <div class="dash-bar-group">
+                    <div class="dash-bar-col">
+                      <div class="dash-bar-fill" style="height:55%;background:rgba(45,91,227,0.7);"></div>
+                      <div class="dash-bar-lbl">support</div>
+                    </div>
+                    <div class="dash-bar-col">
+                      <div class="dash-bar-fill" style="height:90%;background:#EF4444;"></div>
+                      <div class="dash-bar-lbl">data_sync</div>
+                    </div>
+                    <div class="dash-bar-col">
+                      <div class="dash-bar-fill" style="height:35%;background:rgba(45,91,227,0.5);"></div>
+                      <div class="dash-bar-lbl">onboard</div>
+                    </div>
+                    <div class="dash-bar-col">
+                      <div class="dash-bar-fill" style="height:70%;background:#F59E0B;"></div>
+                      <div class="dash-bar-lbl">analyst</div>
+                    </div>
+                    <div class="dash-bar-col">
+                      <div class="dash-bar-fill" style="height:25%;background:rgba(45,91,227,0.4);"></div>
+                      <div class="dash-bar-lbl">summarize</div>
+                    </div>
+                  </div>
+                  <div class="dash-bar-amounts">
+                    <span>$42</span><span style="color:#EF4444;font-weight:600;">$74</span><span>$28</span><span
+                      style="color:#F59E0B;">$54</span><span>$18</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tenant table -->
+              <div class="dash-chart-card">
+                <div class="dash-card-title">Top Customers <span class="dash-card-sub">by cost</span></div>
+                <div class="dash-tenant-list">
+                  <div class="dash-tenant-row">
+                    <div class="dash-tenant-dot" style="background:#EF4444;"></div>
+                    <div class="dash-tenant-name">acme_corp</div>
+                    <div class="dash-tenant-bar-wrap">
+                      <div class="dash-tenant-bar-fill" style="width:100%;"></div>
+                    </div>
+                    <div class="dash-tenant-cost" style="color:#EF4444;">$200</div>
+                  </div>
+                  <div class="dash-tenant-row">
+                    <div class="dash-tenant-dot" style="background:var(--accent);"></div>
+                    <div class="dash-tenant-name">startup_x</div>
+                    <div class="dash-tenant-bar-wrap">
+                      <div class="dash-tenant-bar-fill" style="width:55%;"></div>
+                    </div>
+                    <div class="dash-tenant-cost">$41</div>
+                  </div>
+                  <div class="dash-tenant-row">
+                    <div class="dash-tenant-dot" style="background:#10B981;"></div>
+                    <div class="dash-tenant-name">user_4821</div>
+                    <div class="dash-tenant-bar-wrap">
+                      <div class="dash-tenant-bar-fill" style="width:28%;background:rgba(16,185,129,0.5);"></div>
+                    </div>
+                    <div class="dash-tenant-cost" style="color:#10B981;">$22</div>
+                  </div>
+                  <div class="dash-tenant-row">
+                    <div class="dash-tenant-dot" style="background:#6B6560;"></div>
+                    <div class="dash-tenant-name">dev_team</div>
+                    <div class="dash-tenant-bar-wrap">
+                      <div class="dash-tenant-bar-fill" style="width:14%;background:rgba(107,101,96,0.4);"></div>
+                    </div>
+                    <div class="dash-tenant-cost">$11</div>
+                  </div>
+                </div>
+                <!-- Alert pill -->
+                <div class="dash-alert-pill">⚠️ acme_corp nearing monthly budget cap</div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-section">
+    <div class="marquee-label">Built for</div>
+    <div class="marquee-track">
+      <span class="marquee-item">Solo SaaS founders building with LLMs</span><span class="marquee-item">·</span>
+      <span class="marquee-item">Devs shipping AI features</span><span class="marquee-item">·</span>
+      <span class="marquee-item">Indie hackers</span><span class="marquee-item">·</span>
+      <span class="marquee-item">Small AI startups</span><span class="marquee-item">·</span>
+      <span class="marquee-item">Multi-agent builders</span><span class="marquee-item">·</span>
+      <span class="marquee-item">B2B SaaS embedding AI</span><span class="marquee-item">·</span>
+      <span class="marquee-item">Solo SaaS founders building with LLMs</span><span class="marquee-item">·</span>
+      <span class="marquee-item">Devs shipping AI features</span><span class="marquee-item">·</span>
+      <span class="marquee-item">Indie hackers</span><span class="marquee-item">·</span>
+      <span class="marquee-item">Small AI startups</span><span class="marquee-item">·</span>
+      <span class="marquee-item">Multi-agent builders</span><span class="marquee-item">·</span>
+      <span class="marquee-item">B2B SaaS embedding AI</span><span class="marquee-item">·</span>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <section id="how" style="padding-top:120px;padding-bottom:120px;">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div style="margin-bottom:64px;" class="reveal">
+        <div class="section-tag">How Caltryx works</div>
+        <h2 class="section-title">One SDK. Total<br><em>visibility.</em></h2>
+        <p class="section-sub">Three steps from zero visibility to full cost attribution across every agent, workflow,
+          and customer.</p>
+      </div>
+      <div class="how-section">
+        <div class="how-left">
+          <div class="step-3d-wrap">
+            <div class="step-visual sv-1" id="step-visual">🔌</div>
+          </div>
+        </div>
+        <div class="how-right" id="how-steps">
+          <div class="how-step active" data-step="0" data-emoji="🔌" data-bg="sv-1">
+            <div class="step-num">01</div>
+            <h3 class="step-title">Drop in the SDK</h3>
+            <p class="step-desc">Install the Caltryx SDK in minutes. Wrap your LLM calls with <code
+                style="background:rgba(45,91,227,0.1);padding:2px 8px;border-radius:4px;font-size:13px;">trackLLM()</code>
+              and attach tags like user_id, workflow_id, and step_name. That's it.</p>
+            <div class="step-badge">⚡ 5-minute integration</div>
+          </div>
+          <div class="how-step" data-step="1" data-emoji="🏷️" data-bg="sv-2">
+            <div class="step-num">02</div>
+            <h3 class="step-title">Tags power everything</h3>
+            <p class="step-desc">Every token, every call, every dollar gets attributed. Tag by tenant, workflow, step,
+              model, environment — or any custom dimension. Without tags, nothing works. So we make tagging dead simple.
+            </p>
+            <div class="step-badge">🎯 Unlimited custom dimensions</div>
+          </div>
+          <div class="how-step" data-step="2" data-emoji="🛡️" data-bg="sv-3">
+            <div class="step-num">03</div>
+            <h3 class="step-title">Set budgets, enforce hard limits</h3>
+            <p class="step-desc">Not just alerts — hard enforcement. Set daily, monthly, per-workflow, per-tenant, or
+              per-agent budgets. Caltryx auto-stops agents and blocks API calls the moment a limit is hit.</p>
+            <div class="step-badge">🔒 Kill switch included</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEM SECTION -->
+  <section style="background:var(--cream-dark);padding:100px 48px;">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div class="reveal">
+        <div class="section-tag">The problem</div>
+        <h2 class="section-title">You're flying blind on<br>AI costs. <em>That ends now.</em></h2>
+        <p class="section-sub">Most AI builders don't know what they're spending — until the invoice arrives and it's
+          too late.</p>
+      </div>
+      <div class="problem-grid">
+        <div class="problem-card reveal reveal-delay-1">
+          <div class="problem-icon">💸</div>
+          <div class="problem-title">No idea which workflow costs the most</div>
+          <div class="problem-desc">You have 5 agents running. You have no idea if support_bot is $4 or $400 a day. You
+            find out at month end.</div>
+        </div>
+        <div class="problem-card reveal reveal-delay-2">
+          <div class="problem-icon">🏢</div>
+          <div class="problem-title">Can't attribute costs to customers</div>
+          <div class="problem-desc">Your enterprise client uses 50x more AI than others. You're billing them the same
+            flat fee. You're losing money.</div>
+        </div>
+        <div class="problem-card reveal reveal-delay-3">
+          <div class="problem-icon">🚨</div>
+          <div class="problem-title">No hard budget enforcement</div>
+          <div class="problem-desc">You set an alert. The agent ignores it. You get an email after $2,000 of runaway
+            spend. Alerts aren't guardrails.</div>
+        </div>
+        <div class="problem-card reveal reveal-delay-1">
+          <div class="problem-icon">🕳️</div>
+          <div class="problem-title">Unknown spend from unmapped traffic</div>
+          <div class="problem-desc">Untagged calls. Missing tenant IDs. Rogue agents. A significant chunk of your AI
+            spend is completely invisible.</div>
+        </div>
+        <div class="problem-card reveal reveal-delay-2">
+          <div class="problem-icon">🔍</div>
+          <div class="problem-title">Zero step-level tracing</div>
+          <div class="problem-desc">A multi-step pipeline costs $18. You don't know if it's the planner, the executor,
+            or the validator burning budget.</div>
+        </div>
+        <div class="problem-card reveal reveal-delay-3">
+          <div class="problem-icon">📊</div>
+          <div class="problem-title">No model optimization signal</div>
+          <div class="problem-desc">GPT-4 doing work GPT-3.5 could handle. Large contexts where small ones would do.
+            You're over-paying by default.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REPORT SECTIONS -->
+  <section id="report" style="padding-top:0px;padding-bottom:100px;">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div style="margin-bottom:64px;" class="reveal">
+        <div class="section-tag">9 Systems</div>
+        <h2 class="section-title">Every layer of AI cost<br>infrastructure, <em>covered.</em></h2>
+        <p class="section-sub">From agent management to Telegram control — Caltryx is the complete observability stack
+          for production AI.</p>
+      </div>
+      <div class="report-grid">
+        <div class="reveal-left">
+          <div class="report-list">
+            <div class="report-item">
+              <div class="report-num">01</div>
+              <div>
+                <div class="report-item-title">Agent Management System</div>
+                <div class="report-item-desc">Create, edit, enable/disable agents. Assign models, temperature, max
+                  tokens, and API keys per agent.</div>
+              </div>
+            </div>
+            <div class="report-item">
+              <div class="report-num">02</div>
+              <div>
+                <div class="report-item-title">BYOK System</div>
+                <div class="report-item-desc">Add your own OpenAI or Anthropic keys. Encrypted storage, per-agent
+                  assignment, per-key usage tracking.</div>
+              </div>
+            </div>
+            <div class="report-item">
+              <div class="report-num">03</div>
+              <div>
+                <div class="report-item-title">Deep Cost Attribution</div>
+                <div class="report-item-desc">Cost per workflow, per step, per customer. Powered by the tagging layer —
+                  the strongest value in the stack.</div>
+              </div>
+            </div>
+            <div class="report-item">
+              <div class="report-num">04</div>
+              <div>
+                <div class="report-item-title">Guardrails & Budget Control</div>
+                <div class="report-item-desc">Hard enforcement — not just alerts. Kill switch, auto-stop, API blocking,
+                  throttle, and manual override.</div>
+              </div>
+            </div>
+            <div class="report-item">
+              <div class="report-num">05</div>
+              <div>
+                <div class="report-item-title">Observability & Tracing</div>
+                <div class="report-item-desc">DevOps-style tracing with Correlation IDs. Full request logs, error logs,
+                  token breakdowns, response times.</div>
+              </div>
+            </div>
+            <div class="report-item">
+              <div class="report-num">06–09</div>
+              <div>
+                <div class="report-item-title">Cost Optimization · Telegram Bot · SDK · REST API</div>
+                <div class="report-item-desc">Token waste detection, model swap suggestions, Telegram control center,
+                  drop-in SDK, webhooks, and CSV export.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="report-3d-wrap reveal-right">
+          <div class="report-visual">
+            <div class="rv-inner">
+              <div class="rv-header">Cost Attribution — Live</div>
+              <div class="rv-row">
+                <div class="rv-icon">🔄</div>
+                <div>
+                  <div class="rv-text-main">support_bot workflow → $74 today</div>
+                  <div class="rv-text-sub">Planner $4 · Executor $9 · Validator $1 · per step</div>
+                </div>
+              </div>
+              <div class="rv-row">
+                <div class="rv-icon">👤</div>
+                <div>
+                  <div class="rv-text-main">acme_corp (tenant) → $200 this month</div>
+                  <div class="rv-text-sub">Highest-cost customer — profitability at risk</div>
+                </div>
+              </div>
+              <div class="rv-row">
+                <div class="rv-icon">🚨</div>
+                <div>
+                  <div class="rv-text-main">Budget $500/mo — 87% used</div>
+                  <div class="rv-text-sub">Kill switch armed — will auto-stop at limit</div>
+                </div>
+              </div>
+              <div class="rv-row accent-row">
+                <div class="rv-icon">⭐</div>
+                <div>
+                  <div class="rv-text-main" style="color:var(--accent);">Optimization signal</div>
+                  <div class="rv-text-sub">Switch summarizer to GPT-3.5 → save $31/day</div>
+                </div>
+              </div>
+              <div class="rv-builder">
+                <div class="rv-builder-label">SDK — drop-in tracking</div>
+                <div class="rv-builder-line"><span class="cmd">trackLLM</span>({ <span class="val">workflow:
+                    "support"</span>,</div>
+                <div class="rv-builder-line">&nbsp;&nbsp;<span class="val">step: "planner"</span>, <span
+                    class="val">user_id: "u123"</span>,</div>
+                <div class="rv-builder-line">&nbsp;&nbsp;<span class="val">tenant_id: "acme_corp"</span> })</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing" style="background:var(--cream-dark);padding:100px 48px;">
+    <div style="text-align:center;" class="reveal">
+      <div class="section-tag">Pricing</div>
+      <h2 class="section-title">Infrastructure pricing.<br><em>Not toy pricing.</em></h2>
+      <p class="section-sub" style="margin:0 auto;text-align:center;">Start solo. Scale to enterprise. Every plan pays
+        for itself the first time it stops a runaway bill.</p>
+    </div>
+
+    <!-- 3 card showcase -->
+    <div class="pricing-showcase reveal">
+
+      <!-- LEFT: Starter -->
+      <div class="pc-card pc-card-left">
+        <div class="pc-toggle">
+          <button class="pc-toggle-btn active">Annual</button>
+          <button class="pc-toggle-btn">Monthly</button>
+        </div>
+        <div class="pc-active-badge"><span
+            style="width:7px;height:7px;background:#F59E0B;border-radius:50%;display:inline-block;"></span> Active</div>
+        <div class="pc-plan-name">Starter</div>
+        <div class="pc-price-row">
+          <div class="pc-price-main">$19</div>
+        </div>
+        <div class="pc-price-meta">/ month (USD)</div>
+        <div class="pc-price-billed">$228 billed yearly</div>
+        <div class="pc-desc">For solo AI builders getting started. Essential visibility on 5 agents.</div>
+        <div class="pc-features">
+          <div class="pc-feat included">
+            <div class="pc-feat-icon">✓</div>5 agents
+          </div>
+          <div class="pc-feat included">
+            <div class="pc-feat-icon">✓</div>5M tracked tokens / month
+          </div>
+          <div class="pc-feat included">
+            <div class="pc-feat-icon">✓</div>External tracking mode
+          </div>
+          <div class="pc-feat included">
+            <div class="pc-feat-icon">✓</div>Budget alerts
+          </div>
+          <div class="pc-feat excluded">
+            <div class="pc-feat-icon">✕</div>SDK mode
+          </div>
+          <div class="pc-feat excluded">
+            <div class="pc-feat-icon">✕</div>Slack / Telegram alerts
+          </div>
+          <div class="pc-feat excluded">
+            <div class="pc-feat-icon">✕</div>Webhooks + CSV export
+          </div>
+          <div class="pc-feat excluded">
+            <div class="pc-feat-icon">✕</div>Advanced analytics
+          </div>
+        </div>
+        <button class="pc-cta pc-cta-light">Join Waitlist →</button>
+      </div>
+
+      <!-- CENTER: Growth (featured) -->
+      <div class="pc-card pc-card-center">
+        <div class="pc-save-badge">Save 27%</div>
+        <div class="pc-toggle">
+          <button class="pc-toggle-btn active">Annual</button>
+          <button class="pc-toggle-btn">Monthly</button>
+        </div>
+        <div class="pc-popular-badge"><span
+            style="width:6px;height:6px;background:#10B981;border-radius:50%;display:inline-block;"></span>Most Popular
+        </div>
+        <div class="pc-plan-name">Growth</div>
+        <div class="pc-price-row">
+          <div class="pc-price-old">$65</div>
+          <div class="pc-price-main">$49</div>
+        </div>
+        <div class="pc-price-meta">/ month (USD)</div>
+        <div class="pc-price-billed">$588 billed yearly</div>
+        <div class="pc-desc">For serious AI startups that need step-level attribution, SDK, and hard enforcement.</div>
+        <div class="pc-features">
+          <div class="pc-feat included">
+            <div class="pc-feat-icon">✓</div>20 agents
+          </div>
+          <div class="pc-feat included">
+            <div class="pc-feat-icon">✓</div>25M tracked tokens / month
+          </div>
+          <div class="pc-feat included">
+            <div class="pc-feat-icon">✓</div>External + SDK mode
+          </div>
+          <div class="pc-feat included">
+            <div class="pc-feat-icon">✓</div>Slack / Telegram alerts
+          </div>
+          <div class="pc-feat included">
+            <div class="pc-feat-icon">✓</div>Webhooks + CSV export
+          </div>
+          <div class="pc-feat included">
+            <div class="pc-feat-icon">✓</div>Advanced analytics
+          </div>
+          <div class="pc-feat included">
+            <div class="pc-feat-icon">✓</div>Priority email support
+          </div>
+          <div class="pc-feat excluded">
+            <div class="pc-feat-icon">✕</div>Multi-user workspace
+          </div>
+        </div>
+        <button class="pc-cta pc-cta-dark">Join Waitlist →</button>
+      </div>
+
+      <!-- RIGHT: Scale -->
+      <div class="pc-card pc-card-right">
+        <div class="pc-toggle">
+          <button class="pc-toggle-btn active">Annual</button>
+          <button class="pc-toggle-btn">Monthly</button>
+        </div>
+        <div class="pc-popular-badge"
+          style="background:rgba(45,91,227,0.08);color:var(--accent);border-color:rgba(45,91,227,0.2);">Popular ●</div>
+        <div class="pc-plan-name">Scale</div>
+        <div class="pc-price-row">
+          <div class="pc-price-main">$129</div>
+        </div>
+        <div class="pc-price-meta">/ month (USD)</div>
+        <div class="pc-price-billed">$1,548 billed yearly</div>
+        <div class="pc-desc">For AI-heavy teams needing multi-user workspaces, role permissions, and full control.</div>
+        <div class="pc-features">
+          <div class="pc-feat included">
+            <div class="pc-feat-icon">✓</div>75 agents
+          </div>
+          <div class="pc-feat included">
+            <div class="pc-feat-icon">✓</div>100M tracked tokens / month
+          </div>
+          <div class="pc-feat included">
+            <div class="pc-feat-icon">✓</div>Multi-user workspace
+          </div>
+          <div class="pc-feat included">
+            <div class="pc-feat-icon">✓</div>Role-based permissions
+          </div>
+          <div class="pc-feat included">
+            <div class="pc-feat-icon">✓</div>Custom alert rules
+          </div>
+          <div class="pc-feat included">
+            <div class="pc-feat-icon">✓</div>Everything in Growth
+          </div>
+          <div class="pc-feat included">
+            <div class="pc-feat-icon">✓</div>Faster support
+          </div>
+          <div class="pc-feat excluded">
+            <div class="pc-feat-icon">✕</div>Dedicated infrastructure
+          </div>
+        </div>
+        <button class="pc-cta pc-cta-light">Join Waitlist →</button>
+      </div>
+
+    </div>
+
+    <!-- Enterprise banner -->
+    <div class="pc-enterprise-row reveal reveal-delay-2">
+      <div class="pc-enterprise-banner">
+        <div class="pc-ent-left">
+          <h3>🏛 Enterprise</h3>
+          <p>Built for AI-native companies operating at scale. Custom pricing, on request.</p>
+        </div>
+        <div class="pc-ent-features">
+          <div class="pc-ent-feat">Unlimited agents + tokens</div>
+          <div class="pc-ent-feat">Dedicated infrastructure</div>
+          <div class="pc-ent-feat">SLA agreement</div>
+          <div class="pc-ent-feat">White-label option</div>
+          <div class="pc-ent-feat">Custom integrations</div>
+          <div class="pc-ent-feat">Dedicated support + onboarding</div>
+        </div>
+        <button class="pc-ent-cta" data-page="contact">Talk to us →</button>
+      </div>
+    </div>
+
+    <p class="pricing-note">All plans include BYOK · No hidden fees · Cancel anytime</p>
+  </section>
+
+  <!-- NOT SECTION -->
+  <section>
+    <div style="max-width:900px;margin:0 auto;" class="reveal">
+      <div class="section-tag">Positioning</div>
+      <h2 class="section-title">Caltryx is<br><em>AI cost infrastructure.</em></h2>
+      <p class="section-sub">Not an analytics dashboard. Not an APM tool. The observability + guardrail layer built for
+        LLM workloads.</p>
+      <div class="not-grid">
+        <div class="not-card is-not">
+          <div class="not-card-label">❌ Caltryx is NOT</div>
+          <div class="not-list">
+            <div class="not-list-item"><span>—</span> A generic APM / monitoring tool</div>
+            <div class="not-list-item"><span>—</span> A Datadog replacement</div>
+            <div class="not-list-item"><span>—</span> An LLM playground</div>
+            <div class="not-list-item"><span>—</span> A prompt management tool</div>
+            <div class="not-list-item"><span>—</span> An alert-only budget tool</div>
+            <div class="not-list-item"><span>—</span> A replacement for your AI stack</div>
+          </div>
+        </div>
+        <div class="not-card is-yes">
+          <div class="not-card-label">✓ Caltryx IS</div>
+          <div class="not-list">
+            <div class="not-list-item"><span>→</span> Deep cost attribution per tenant</div>
+            <div class="not-list-item"><span>→</span> Hard budget enforcement + kill switch</div>
+            <div class="not-list-item"><span>→</span> Step-level workflow tracing</div>
+            <div class="not-list-item"><span>→</span> BYOK with encrypted key storage</div>
+            <div class="not-list-item"><span>→</span> Drop-in SDK + Telegram control</div>
+            <div class="not-list-item"><span>→</span> Agent management + cost optimization</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section style="padding:60px 0;">
+    <div class="stats-section reveal-scale">
+      <h2 class="stats-title">Infrastructure for <em>serious</em> AI builders.</h2>
+      <div class="stats-grid">
+        <div>
+          <div class="stat-num" data-target="9" data-suffix=" systems">0</div>
+          <div class="stat-label">Complete feature architecture out of the box</div>
+        </div>
+        <div>
+          <div class="stat-num" data-target="5" data-suffix=" min">0</div>
+          <div class="stat-label">SDK integration time — start tracking immediately</div>
+        </div>
+        <div>
+          <div class="stat-num" data-target="100" data-suffix="%">0</div>
+          <div class="stat-label">Hard budget enforcement — not just alerts</div>
+        </div>
+        <div>
+          <div class="stat-num" data-static="BYOK">BYOK</div>
+          <div class="stat-label">Bring your own API keys — always encrypted</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="faq-section reveal">
+      <div style="text-align:center;margin-bottom:16px;">
+        <div class="section-tag">FAQs</div>
+      </div>
+      <h2 class="section-title" style="text-align:center;">Your questions, <em>answered</em></h2>
+      <p class="section-sub" style="text-align:center;margin:0 auto;">Everything before you integrate Caltryx into
+        production.</p>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <div class="faq-q">What exactly is Caltryx? <span class="faq-icon">+</span></div>
+          <div class="faq-a">Caltryx is AI Cost Observability + Guardrail Infrastructure combined with an Agent
+            Management Layer. It gives you deep cost attribution per workflow, per step, and per customer — plus hard
+            budget enforcement that actually stops agents when limits are hit. Not just alerts.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">How does BYOK (Bring Your Own Key) work? <span class="faq-icon">+</span></div>
+          <div class="faq-a">You add your OpenAI or Anthropic API keys to Caltryx — they're encrypted at rest and never
+            stored in plain text. You can assign different keys per agent, track usage per key, and manage multiple keys
+            per workspace. Caltryx never charges you for LLM calls — you pay your providers directly.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">What's the difference between alerts and hard budget enforcement? <span
+              class="faq-icon">+</span></div>
+          <div class="faq-a">Most tools send an email after you've overspent. Caltryx enforces budgets in real-time —
+            auto-stopping agents, blocking API calls, or throttling usage the moment a limit is reached. Manual override
+            is always available from the dashboard or directly via Telegram command.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">How does tenant-level cost attribution work? <span class="faq-icon">+</span></div>
+          <div class="faq-a">When you call trackLLM(), you attach a tenant_id tag. Caltryx aggregates all token usage
+            and cost against that tag in real-time. You see exactly which customers are profitable, which are
+            power-users burning budget, and how to accurately price your AI-powered features.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Does Caltryx support multi-agent and LangChain workflows? <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-a">Yes. Caltryx is designed specifically for multi-agent workflows. Correlation IDs link every
+            step of a chain into a single trace — so you see the full cost breakdown across every node (planner,
+            executor, validator) in one view, with per-step attribution.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <div style="position:relative;overflow:hidden;">
+    <div
+      style="position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(45,91,227,0.08),transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;">
+    </div>
+    <div class="final-cta reveal">
+      <h2>Stop guessing.<br>Start <em>knowing.</em></h2>
+      <p>Join the waitlist. Be first when Caltryx launches — and help shape exactly what we build.</p>
+      <div class="final-input-wrap" id="final-waitlist-wrap">
+        <input class="final-input" id="final-waitlist-input" type="email" placeholder="Enter your email address" />
+        <button class="hero-input-btn" id="final-waitlist-btn">Join Waitlist →</button>
+      </div>
+      <div style="margin-top:16px;font-size:13px;color:var(--muted);" id="final-waitlist-note">Be first to know when we
+        launch · No spam · Ever</div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo">Caltryx.</div>
+        <div class="footer-tagline">AI Cost Observability + Guardrail Infrastructure.</div>
+      </div>
+      <div>
+        <div class="footer-col-title">Product</div>
+        <div class="footer-links">
+          <a href="#" data-page="features">Features</a>
+          <a href="#" data-page="how-it-works">How It Works</a>
+          <a href="#" data-page="pricing">Pricing</a>
+          <a href="#" data-page="sdk-docs">SDK Docs</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Resources</div>
+        <div class="footer-links">
+          <a href="#" data-page="docs">Documentation</a>
+          <a href="#" data-page="blog">Blog</a>
+          <a href="#" data-page="changelog">Changelog</a>
+          <a href="#" data-page="security">Security</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Company</div>
+        <div class="footer-links">
+          <a href="#" data-page="about">About</a>
+          <a href="#" data-page="contact">Contact</a>
+          <a href="#" data-page="privacy">Privacy Policy</a>
+          <a href="#" data-page="terms">Terms of Service</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">Caltryx, 2026</div>
+      <div class="footer-legal">AI Cost Observability Infrastructure · Not affiliated with OpenAI or Anthropic.</div>
+    </div>
+  </footer>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- SUB-PAGES (hidden by default, shown via SPA router)        -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div id="subpage-overlay">
+
+    <!-- SUB NAV -->
+    <div id="subpage-nav">
+      <a href="#" class="nav-logo" id="subpage-back-logo">Caltryx<span>.</span></a>
+      <button id="subpage-back" class="subpage-back-btn">← Back to Home</button>
+    </div>
+
+    <!-- PAGE: FEATURES -->
+    <div class="subpage" id="page-features">
+      <canvas class="sp-canvas" id="sp-canvas-features"></canvas>
+      <div class="sp-hero">
+        <div class="section-tag">9 Systems</div>
+        <h1 class="sp-h1">Everything you need to <em>run AI in production.</em></h1>
+        <p class="sp-lead">Caltryx is not one feature — it's the complete observability + guardrail stack. Every system
+          works independently, and powerfully together.</p>
+      </div>
+      <div class="sp-feature-grid">
+        <div class="sp-feat-card">
+          <div class="sp-feat-num">01</div>
+          <h3>Agent Management</h3>
+          <p>Create, edit, enable/disable agents. Set model, temperature, max tokens, and API key per agent. Full
+            lifecycle control from a single interface.</p>
+        </div>
+        <div class="sp-feat-card">
+          <div class="sp-feat-num">02</div>
+          <h3>BYOK System</h3>
+          <p>Add your own OpenAI or Anthropic keys. Encrypted at rest. Assign per agent. Track usage per key. Multiple
+            keys per workspace supported.</p>
+        </div>
+        <div class="sp-feat-card">
+          <div class="sp-feat-num">03</div>
+          <h3>Deep Cost Attribution</h3>
+          <p>Cost per workflow, per step, per customer. The most powerful dimension in the stack — powered entirely by
+            the tagging layer. Every dollar tracked.</p>
+        </div>
+        <div class="sp-feat-card">
+          <div class="sp-feat-num">04</div>
+          <h3>Guardrails & Budget Control</h3>
+          <p>Hard enforcement — not just alerts. Set daily, monthly, per-workflow, per-tenant, per-agent budgets. Kill
+            switch auto-stops agents when limits hit.</p>
+        </div>
+        <div class="sp-feat-card">
+          <div class="sp-feat-num">05</div>
+          <h3>Observability & Tracing</h3>
+          <p>DevOps-style tracing with Correlation IDs. Full request logs, error logs, model used, response time, and
+            complete token breakdowns per step.</p>
+        </div>
+        <div class="sp-feat-card">
+          <div class="sp-feat-num">06</div>
+          <h3>Cost Optimization Layer</h3>
+          <p>Token waste detection. Large context warnings. Model swap suggestions. Unknown spend detection for untagged
+            traffic. Anomaly detection on usage spikes.</p>
+        </div>
+        <div class="sp-feat-card">
+          <div class="sp-feat-num">07</div>
+          <h3>Telegram Control Center</h3>
+          <p>Alerts for budget exceeded, usage spikes, agent stopped. Run /stats, /usage, /stop agent-name, /budget
+            directly from Telegram. Lightweight remote control.</p>
+        </div>
+        <div class="sp-feat-card">
+          <div class="sp-feat-num">08</div>
+          <h3>Drop-in SDK</h3>
+          <p>Node/JS first. One function call wraps your LLM. Attach tags, report tokens, enforce budgets, generate
+            correlation IDs. 5-minute integration guaranteed.</p>
+        </div>
+        <div class="sp-feat-card">
+          <div class="sp-feat-num">09</div>
+          <h3>REST API + Webhooks</h3>
+          <p>Full REST endpoint. Webhook support for real-time events. Usage and CSV export. Team access with
+            per-workspace API keys. Build on top of Caltryx.</p>
+        </div>
+      </div>
+      <div class="sp-waitlist-banner">
+        <div class="sp-wb-text"><strong>Caltryx is launching soon.</strong> Join the waitlist — be first to access all 9
+          systems.</div>
+        <div class="sp-wb-form"><input type="email" class="sp-wb-input sp-wbl-features"
+            placeholder="your@email.com" /><button class="sp-wb-btn sp-wbl-btn-features">Join Waitlist →</button></div>
+      </div>
+    </div>
+
+    <!-- PAGE: HOW IT WORKS -->
+    <div class="subpage" id="page-how-it-works">
+      <canvas class="sp-canvas" id="sp-canvas-how"></canvas>
+      <div class="sp-hero">
+        <div class="section-tag">How it works</div>
+        <h1 class="sp-h1">From zero visibility to full<br><em>cost clarity in 5 minutes.</em></h1>
+        <p class="sp-lead">Three steps. One SDK. Total attribution across every agent, workflow, and customer in your
+          stack.</p>
+      </div>
+      <div class="sp-steps">
+        <div class="sp-step">
+          <div class="sp-step-num">01</div>
+          <div class="sp-step-body">
+            <h3>Install the SDK</h3>
+            <p>One npm install. Works with any Node/JS codebase — LangChain, raw OpenAI calls, custom agents, multi-step
+              pipelines. No lock-in.</p>
+            <div class="sp-code-block">
+              <div class="sp-code-label">Terminal</div><code>npm install @Caltryx/sdk</code>
+            </div>
+          </div>
+        </div>
+        <div class="sp-step">
+          <div class="sp-step-num">02</div>
+          <div class="sp-step-body">
+            <h3>Wrap your LLM calls with trackLLM()</h3>
+            <p>One function call does everything: attaches tags, reports tokens, enforces budgets, and generates a
+              correlation ID for full trace linking.</p>
+            <div class="sp-code-block">
+              <div class="sp-code-label">your-agent.js</div>
+              <code><span style="color:#93C5FD;">import</span> { trackLLM } <span style="color:#93C5FD;">from</span> <span style="color:#6EE7A0;">'@Caltryx/sdk'</span>;<br><br><span style="color:#93C5FD;">await</span> <span style="color:#FCD34D;">trackLLM</span>({<br>&nbsp;&nbsp;workflow: <span style="color:#6EE7A0;">"support"</span>,<br>&nbsp;&nbsp;step: <span style="color:#6EE7A0;">"planner"</span>,<br>&nbsp;&nbsp;user_id: <span style="color:#6EE7A0;">"u123"</span>,<br>&nbsp;&nbsp;tenant_id: <span style="color:#6EE7A0;">"acme_corp"</span>,<br>&nbsp;&nbsp;model: <span style="color:#6EE7A0;">"gpt-4o"</span><br>});</code>
+            </div>
+          </div>
+        </div>
+        <div class="sp-step">
+          <div class="sp-step-num">03</div>
+          <div class="sp-step-body">
+            <h3>Set budgets. Enforce hard limits.</h3>
+            <p>From the dashboard or API: set daily/monthly budgets per agent, workflow, or tenant. Caltryx enforces in
+              real-time — auto-stop, block, or throttle. Telegram alert fires instantly.</p>
+            <div class="sp-code-block">
+              <div class="sp-code-label">Dashboard or API</div>
+              <code>POST /budgets<br>{ tenant_id: <span style="color:#6EE7A0;">"acme_corp"</span>, monthly: <span style="color:#FCD34D;">500</span>,<br>&nbsp;&nbsp;action: <span style="color:#6EE7A0;">"stop"</span> }</code>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="sp-waitlist-banner">
+        <div class="sp-wb-text"><strong>Ready to integrate?</strong> Join the waitlist and be first when the SDK ships.
+        </div>
+        <div class="sp-wb-form"><input type="email" class="sp-wb-input sp-wbl-how"
+            placeholder="your@email.com" /><button class="sp-wb-btn sp-wbl-btn-how">Join Waitlist →</button></div>
+      </div>
+    </div>
+
+    <!-- PAGE: PRICING -->
+    <div class="subpage" id="page-pricing">
+      <canvas class="sp-canvas" id="sp-canvas-pricing"></canvas>
+      <div class="sp-hero">
+        <div class="section-tag">Pricing</div>
+        <h1 class="sp-h1">Start solo.<br><em>Scale to enterprise.</em></h1>
+        <p class="sp-lead">Every plan includes BYOK. Every plan pays for itself the moment it catches one runaway LLM
+          bill.</p>
+      </div>
+      <div class="pricing-grid-4" style="margin-top:0;">
+        <div class="pricing-card">
+          <div class="pricing-tier-icon">🧱</div>
+          <div class="pricing-label">Starter</div>
+          <div class="pricing-price">$19</div>
+          <div class="pricing-period">per month</div>
+          <div class="pricing-features">
+            <div class="pricing-feature"><span class="pricing-check">✓</span> 5 agents</div>
+            <div class="pricing-feature"><span class="pricing-check">✓</span> 5M tokens / month</div>
+            <div class="pricing-feature"><span class="pricing-check">✓</span> External tracking mode</div>
+            <div class="pricing-feature"><span class="pricing-check">✓</span> Budget alerts</div>
+            <div class="pricing-feature"><span class="pricing-check">✓</span> Basic analytics</div>
+            <div class="pricing-feature"><span class="pricing-check">✓</span> Email notifications + API</div>
+          </div><button class="pricing-btn" style="background:var(--dark);">Join waitlist →</button>
+        </div>
+        <div class="pricing-card featured">
+          <div class="pricing-badge">Most popular</div>
+          <div class="pricing-tier-icon">🚀</div>
+          <div class="pricing-label">Growth</div>
+          <div class="pricing-price">$49</div>
+          <div class="pricing-period">per month</div>
+          <div class="pricing-features">
+            <div class="pricing-feature"><span class="pricing-check">✓</span> 20 agents</div>
+            <div class="pricing-feature"><span class="pricing-check">✓</span> 25M tokens / month</div>
+            <div class="pricing-feature"><span class="pricing-check">✓</span> External + SDK mode</div>
+            <div class="pricing-feature"><span class="pricing-check">✓</span> Slack / Telegram alerts</div>
+            <div class="pricing-feature"><span class="pricing-check">✓</span> Webhooks + CSV export</div>
+            <div class="pricing-feature"><span class="pricing-check">✓</span> Advanced analytics</div>
+            <div class="pricing-feature"><span class="pricing-check">✓</span> Priority email support</div>
+          </div><button class="pricing-btn">Join waitlist →</button>
+        </div>
+        <div class="pricing-card">
+          <div class="pricing-tier-icon">🏢</div>
+          <div class="pricing-label">Scale</div>
+          <div class="pricing-price">$129</div>
+          <div class="pricing-period">per month</div>
+          <div class="pricing-features">
+            <div class="pricing-feature"><span class="pricing-check">✓</span> 75 agents</div>
+            <div class="pricing-feature"><span class="pricing-check">✓</span> 100M tokens / month</div>
+            <div class="pricing-feature"><span class="pricing-check">✓</span> Multi-user workspace</div>
+            <div class="pricing-feature"><span class="pricing-check">✓</span> Role-based permissions</div>
+            <div class="pricing-feature"><span class="pricing-check">✓</span> Custom alert rules</div>
+            <div class="pricing-feature"><span class="pricing-check">✓</span> Everything in Growth</div>
+          </div><button class="pricing-btn" style="background:var(--dark);">Join waitlist →</button>
+        </div>
+        <div class="pricing-card pricing-enterprise">
+          <div class="pricing-tier-icon">🏛</div>
+          <div class="pricing-label">Enterprise</div>
+          <div class="pricing-price" style="font-size:36px;">Custom</div>
+          <div class="pricing-period">on request</div>
+          <div class="pricing-features">
+            <div class="pricing-feature"><span class="pricing-check">✓</span> Unlimited agents + tokens</div>
+            <div class="pricing-feature"><span class="pricing-check">✓</span> Dedicated infrastructure</div>
+            <div class="pricing-feature"><span class="pricing-check">✓</span> SLA + audit logs</div>
+            <div class="pricing-feature"><span class="pricing-check">✓</span> White-label option</div>
+            <div class="pricing-feature"><span class="pricing-check">✓</span> Custom integrations</div>
+            <div class="pricing-feature"><span class="pricing-check">✓</span> Dedicated support + onboarding</div>
+          </div><button class="pricing-btn pricing-btn-enterprise">Talk to us →</button>
+        </div>
+      </div>
+      <p style="text-align:center;margin-top:28px;font-size:13px;color:var(--muted);">All plans include BYOK · No hidden
+        fees · Cancel anytime</p>
+      <div class="sp-waitlist-banner">
+        <div class="sp-wb-text"><strong>Pricing locked in for early members.</strong> Join the waitlist before launch.
+        </div>
+        <div class="sp-wb-form"><input type="email" class="sp-wb-input sp-wbl-pricing"
+            placeholder="your@email.com" /><button class="sp-wb-btn sp-wbl-btn-pricing">Join Waitlist →</button></div>
+      </div>
+    </div>
+
+    <!-- PAGE: SDK DOCS -->
+    <div class="subpage" id="page-sdk-docs">
+      <canvas class="sp-canvas" id="sp-canvas-sdk"></canvas>
+      <div class="sp-hero">
+        <div class="section-tag">SDK Documentation</div>
+        <h1 class="sp-h1">Dead simple.<br><em>5 minutes to full visibility.</em></h1>
+        <p class="sp-lead">The Caltryx SDK is Node/JS first. One function wraps your LLM calls and handles everything —
+          tags, tokens, budgets, correlation IDs.</p>
+      </div>
+      <div class="sp-doc-grid">
+        <div class="sp-doc-section">
+          <h3>Installation</h3>
+          <div class="sp-code-block"><code>npm install @Caltryx/sdk</code></div>
+        </div>
+        <div class="sp-doc-section">
+          <h3>Basic usage</h3>
+          <div class="sp-code-block">
+            <code><span style="color:#93C5FD;">import</span> { trackLLM } <span style="color:#93C5FD;">from</span> <span style="color:#6EE7A0;">'@Caltryx/sdk'</span>;<br><span style="color:#93C5FD;">import</span> OpenAI <span style="color:#93C5FD;">from</span> <span style="color:#6EE7A0;">'openai'</span>;<br><br><span style="color:#93C5FD;">const</span> client = <span style="color:#93C5FD;">new</span> <span style="color:#FCD34D;">OpenAI</span>();<br><br><span style="color:#93C5FD;">const</span> result = <span style="color:#93C5FD;">await</span> <span style="color:#FCD34D;">trackLLM</span>({<br>&nbsp;&nbsp;workflow: <span style="color:#6EE7A0;">"support-bot"</span>,<br>&nbsp;&nbsp;step: <span style="color:#6EE7A0;">"planner"</span>,<br>&nbsp;&nbsp;user_id: <span style="color:#6EE7A0;">"user_123"</span>,<br>&nbsp;&nbsp;tenant_id: <span style="color:#6EE7A0;">"acme_corp"</span>,<br>&nbsp;&nbsp;model: <span style="color:#6EE7A0;">"gpt-4o"</span>,<br>&nbsp;&nbsp;fn: () => client.chat.completions.create({ ... })<br>});</code>
+          </div>
+        </div>
+        <div class="sp-doc-section">
+          <h3>Supported tag fields</h3>
+          <div class="sp-tag-table">
+            <div class="sp-tag-row"><span class="sp-tag-key">workflow</span><span class="sp-tag-desc">Group calls by
+                workflow name</span></div>
+            <div class="sp-tag-row"><span class="sp-tag-key">step</span><span class="sp-tag-desc">Identify the step
+                within a workflow</span></div>
+            <div class="sp-tag-row"><span class="sp-tag-key">user_id</span><span class="sp-tag-desc">Link cost to an
+                individual user</span></div>
+            <div class="sp-tag-row"><span class="sp-tag-key">tenant_id</span><span class="sp-tag-desc">B2B tenant
+                attribution</span></div>
+            <div class="sp-tag-row"><span class="sp-tag-key">workspace_id</span><span
+                class="sp-tag-desc">Multi-workspace separation</span></div>
+            <div class="sp-tag-row"><span class="sp-tag-key">model</span><span class="sp-tag-desc">Override model
+                tracking</span></div>
+            <div class="sp-tag-row"><span class="sp-tag-key">environment</span><span class="sp-tag-desc">prod / staging
+                / dev</span></div>
+            <div class="sp-tag-row"><span class="sp-tag-key">custom.*</span><span class="sp-tag-desc">Any custom
+                key-value pair</span></div>
+          </div>
+        </div>
+        <div class="sp-doc-section">
+          <h3>Budget enforcement</h3>
+          <div class="sp-code-block">
+            <code><span style="color:#F59E0B;">// Set in dashboard or via API</span><br>POST /v1/budgets<br>{<br>&nbsp;&nbsp;<span style="color:#6EE7A0;">"tenant_id"</span>: <span style="color:#6EE7A0;">"acme_corp"</span>,<br>&nbsp;&nbsp;<span style="color:#6EE7A0;">"monthly_usd"</span>: <span style="color:#FCD34D;">500</span>,<br>&nbsp;&nbsp;<span style="color:#6EE7A0;">"action"</span>: <span style="color:#6EE7A0;">"stop"</span>  <span style="color:#F59E0B;">// or "throttle" / "alert"</span><br>}</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: DOCS -->
+    <div class="subpage" id="page-docs">
+      <div class="sp-hero">
+        <div class="section-tag">Documentation</div>
+        <h1 class="sp-h1">Everything you need<br>to <em>build with Caltryx.</em></h1>
+        <p class="sp-lead">Full reference for the Caltryx SDK, REST API, webhook events, and dashboard configuration.
+        </p>
+      </div>
+      <div class="sp-doc-links">
+        <div class="sp-doc-link-card" data-page="sdk-docs">
+          <div class="sp-dlc-icon">📦</div>
+          <h3>SDK Reference</h3>
+          <p>Full API for trackLLM(), tags, budget hooks, and correlation IDs.</p><span class="sp-dlc-arrow">→</span>
+        </div>
+        <div class="sp-doc-link-card">
+          <div class="sp-dlc-icon">🔗</div>
+          <h3>REST API</h3>
+          <p>Endpoints for budgets, usage export, agents, and workspace management.</p><span
+            class="sp-dlc-arrow">→</span>
+        </div>
+        <div class="sp-doc-link-card">
+          <div class="sp-dlc-icon">📡</div>
+          <h3>Webhooks</h3>
+          <p>Real-time event payloads for budget hits, agent stops, and usage spikes.</p><span
+            class="sp-dlc-arrow">→</span>
+        </div>
+        <div class="sp-doc-link-card">
+          <div class="sp-dlc-icon">📱</div>
+          <h3>Telegram Bot</h3>
+          <p>Setup guide for /stats, /stop, /budget commands and alert configuration.</p><span
+            class="sp-dlc-arrow">→</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: BLOG -->
+    <div class="subpage" id="page-blog">
+      <canvas class="sp-canvas" id="sp-canvas-blog"></canvas>
+      <div class="sp-hero">
+        <div class="section-tag">Blog</div>
+        <h1 class="sp-h1">Thinking about AI<br><em>cost infrastructure.</em></h1>
+        <p class="sp-lead">Practical writing for AI builders who care about what they're spending.</p>
+      </div>
+      <div class="sp-blog-grid">
+        <div class="sp-blog-card">
+          <div class="sp-blog-tag">Cost Attribution</div>
+          <h3>Why your AI bill will surprise you — and how to stop it</h3>
+          <p>Most founders discover their AI costs through the invoice. Here's how to see it coming before it destroys
+            your margins.</p>
+          <div class="sp-blog-meta">5 min read · Feb 2026</div>
+        </div>
+        <div class="sp-blog-card">
+          <div class="sp-blog-tag">Guardrails</div>
+          <h3>Alerts vs. hard limits: why one actually protects you</h3>
+          <p>An alert tells you after the damage. A kill switch prevents it. The distinction matters more than most
+            people realise.</p>
+          <div class="sp-blog-meta">4 min read · Feb 2026</div>
+        </div>
+        <div class="sp-blog-card">
+          <div class="sp-blog-tag">BYOK</div>
+          <h3>The right way to manage API keys across multiple agents</h3>
+          <p>One key for everything is a security and attribution disaster. Here's the architecture that actually
+            scales.</p>
+          <div class="sp-blog-meta">6 min read · Jan 2026</div>
+        </div>
+        <div class="sp-blog-card">
+          <div class="sp-blog-tag">Multi-agent</div>
+          <h3>Tracing cost across a 5-step LangChain pipeline</h3>
+          <p>Correlation IDs are the key to understanding where your money goes inside complex agent workflows.</p>
+          <div class="sp-blog-meta">8 min read · Jan 2026</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: CHANGELOG -->
+    <div class="subpage" id="page-changelog">
+      <div class="sp-hero">
+        <div class="section-tag">Changelog</div>
+        <h1 class="sp-h1">What we've <em>shipped.</em></h1>
+        <p class="sp-lead">Every update, improvement, and fix — in reverse chronological order.</p>
+      </div>
+      <div class="sp-changelog">
+        <div class="sp-cl-item">
+          <div class="sp-cl-date">Feb 2026</div>
+          <div class="sp-cl-body">
+            <div class="sp-cl-badge sp-cl-new">New</div>
+            <h3>Waitlist launched</h3>
+            <p>Caltryx is officially in pre-launch. Join the waitlist to be first when we open access. Early waitlist
+              members get 3 months of Growth free.</p>
+          </div>
+        </div>
+        <div class="sp-cl-item">
+          <div class="sp-cl-date">Coming soon</div>
+          <div class="sp-cl-body">
+            <div class="sp-cl-badge sp-cl-soon">Soon</div>
+            <h3>SDK v1 — Node/JS</h3>
+            <p>The drop-in trackLLM() SDK for Node and JS environments. BYOK support, full tagging, budget hooks, and
+              correlation IDs built in.</p>
+          </div>
+        </div>
+        <div class="sp-cl-item">
+          <div class="sp-cl-date">Coming soon</div>
+          <div class="sp-cl-body">
+            <div class="sp-cl-badge sp-cl-soon">Soon</div>
+            <h3>Dashboard beta</h3>
+            <p>The full Caltryx dashboard — cost per workflow, per step, per customer. Agent management, budget
+              controls, tracing view, and Telegram integration.</p>
+          </div>
+        </div>
+        <div class="sp-cl-item">
+          <div class="sp-cl-date">Planned</div>
+          <div class="sp-cl-body">
+            <div class="sp-cl-badge sp-cl-planned">Planned</div>
+            <h3>Anomaly detection + optimization layer</h3>
+            <p>Token waste detection, model swap recommendations, and unknown spend flagging powered by internal
+              analysis.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: SECURITY -->
+    <div class="subpage" id="page-security">
+      <div class="sp-hero">
+        <div class="section-tag">Security</div>
+        <h1 class="sp-h1">Your keys.<br><em>Always encrypted.</em></h1>
+        <p class="sp-lead">Caltryx handles API keys, usage data, and cost attribution with security-first architecture.
+        </p>
+      </div>
+      <div class="sp-security-grid">
+        <div class="sp-sec-card">
+          <div class="sp-sec-icon">🔑</div>
+          <h3>BYOK Encryption</h3>
+          <p>All API keys are encrypted at rest using AES-256. Keys are never stored in plain text, never logged, and
+            never transmitted without encryption.</p>
+        </div>
+        <div class="sp-sec-card">
+          <div class="sp-sec-icon">🛡️</div>
+          <h3>No LLM data stored</h3>
+          <p>Caltryx tracks tokens, costs, and metadata — not your prompts or completions. We never store or see the
+            content of your LLM calls.</p>
+        </div>
+        <div class="sp-sec-card">
+          <div class="sp-sec-icon">🔒</div>
+          <h3>Workspace isolation</h3>
+          <p>All data is scoped to your workspace. No cross-tenant data access. Role-based permissions on Scale and
+            Enterprise plans.</p>
+        </div>
+        <div class="sp-sec-card">
+          <div class="sp-sec-icon">📋</div>
+          <h3>Audit logs</h3>
+          <p>Complete audit trail for all budget changes, agent modifications, API key additions, and permission
+            changes. Available on Enterprise plans.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: ABOUT -->
+    <div class="subpage" id="page-about">
+      <canvas class="sp-canvas" id="sp-canvas-about"></canvas>
+      <div class="sp-hero">
+        <div class="section-tag">About Caltryx</div>
+        <h1 class="sp-h1">Built by an AI builder<br><em>who got burned.</em></h1>
+        <p class="sp-lead">Caltryx was born from a real problem: a multi-agent pipeline quietly running up a $600 bill
+          with zero visibility into which step, workflow, or customer was responsible.</p>
+      </div>
+      <div class="sp-about-body">
+        <div class="sp-about-text">
+          <p>The existing tools weren't built for LLM workloads. APMs track infrastructure. Analytics dashboards show
+            page views. Neither tells you that your summarizer agent is spending $40/day when a cheaper model would do
+            the same job for $4.</p>
+          <p>Caltryx is infrastructure for the way AI is actually built in 2026 — multi-agent, multi-tenant,
+            multi-model, and increasingly expensive if you're not watching it closely.</p>
+          <p>We believe every indie hacker, solo founder, and small AI startup deserves the same cost visibility and
+            guardrail tools that enterprise companies build internally. That's what we're building.</p>
+          <p style="margin-top:32px;"><strong>Caltryx is currently in pre-launch.</strong> Join the waitlist — early
+            members help shape what we prioritise.</p>
+        </div>
+        <div class="sp-about-values">
+          <div class="sp-value"><span>🎯</span>
+            <div><strong>Focused</strong>
+              <p>We do one thing: AI cost observability and budget enforcement. No scope creep.</p>
+            </div>
+          </div>
+          <div class="sp-value"><span>🔌</span>
+            <div><strong>Drop-in</strong>
+              <p>5 minutes to full visibility. No rearchitecting. No lock-in.</p>
+            </div>
+          </div>
+          <div class="sp-value"><span>💬</span>
+            <div><strong>Builder-first</strong>
+              <p>Built for indie hackers and solo founders — not enterprise IT departments.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="sp-waitlist-banner">
+        <div class="sp-wb-text"><strong>Join us from day one.</strong> Early waitlist members get 3 months of Growth
+          free.</div>
+        <div class="sp-wb-form"><input type="email" class="sp-wb-input sp-wbl-about"
+            placeholder="your@email.com" /><button class="sp-wb-btn sp-wbl-btn-about">Join Waitlist →</button></div>
+      </div>
+    </div>
+
+    <!-- PAGE: CONTACT -->
+    <div class="subpage" id="page-contact">
+      <canvas class="sp-canvas" id="sp-canvas-contact"></canvas>
+      <div class="sp-hero">
+        <div class="section-tag">Contact</div>
+        <h1 class="sp-h1">Let's talk<br><em>AI infrastructure.</em></h1>
+        <p class="sp-lead">The best way to reach me is a DM on X. Questions, enterprise inquiries, partnership ideas, or
+          just your LLM cost horror story — I read everything.</p>
+      </div>
+      <div class="sp-contact-x-layout">
+        <div class="sp-x-card">
+          <div class="sp-x-icon">𝕏</div>
+          <div class="sp-x-body">
+            <div class="sp-x-handle">@showslikesummu</div>
+            <p class="sp-x-desc">DM me directly on X. I reply to every genuine message. Building Caltryx in public —
+              feedback, feature requests, and ideas all welcome.</p>
+            <a href="https://x.com/showslikesummu" target="_blank" rel="noopener" class="sp-x-btn">Open X.com / DM me
+              →</a>
+          </div>
+        </div>
+        <div class="sp-contact-alts">
+          <div class="sp-contact-item">
+            <div class="sp-ci-icon">🏢</div>
+            <div><strong>Enterprise inquiries</strong>
+              <p>DM on X and mention "Enterprise" — I'll schedule a call same week.</p>
+            </div>
+          </div>
+          <div class="sp-contact-item">
+            <div class="sp-ci-icon">💡</div>
+            <div><strong>Feature requests</strong>
+              <p>Building for builders. Every idea goes into the roadmap. DM or quote-tweet.</p>
+            </div>
+          </div>
+          <div class="sp-contact-item">
+            <div class="sp-ci-icon">🐛</div>
+            <div><strong>Bug reports</strong>
+              <p>Found something wrong? DM with details. Fast fixes, always.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="sp-waitlist-banner">
+        <div class="sp-wb-text"><strong>Caltryx is launching soon.</strong> Join the waitlist — be first in the door.
+        </div>
+        <div class="sp-wb-form"><input type="email" class="sp-wb-input sp-wbl-contact"
+            placeholder="your@email.com" /><button class="sp-wb-btn sp-wbl-btn-contact">Join Waitlist →</button></div>
+      </div>
+    </div>
+
+    <!-- PAGE: PRIVACY -->
+    <div class="subpage" id="page-privacy">
+      <div class="sp-hero">
+        <div class="section-tag">Privacy Policy</div>
+        <h1 class="sp-h1">Your data.<br><em>Handled with care.</em></h1>
+        <p class="sp-lead">Last updated: February 2026</p>
+      </div>
+      <div class="sp-legal-body">
+        <h3>What we collect</h3>
+        <p>Caltryx collects: email addresses from waitlist signups, token usage metadata (counts, not content), cost
+          attribution tags you attach via the SDK, and workspace configuration data. We do not collect the content of
+          your LLM prompts or completions.</p>
+        <h3>How we use it</h3>
+        <p>Usage metadata is used solely to power the Caltryx dashboard — cost attribution, budget tracking, and
+          optimization suggestions. Email addresses are used to send product updates and launch notifications. We never
+          sell data to third parties.</p>
+        <h3>API keys</h3>
+        <p>API keys you add via BYOK are encrypted at rest with AES-256. They are decrypted in memory only when making
+          authenticated requests on your behalf. They are never logged, stored in plaintext, or accessible to Caltryx
+          staff.</p>
+        <h3>Data retention</h3>
+        <p>Usage data is retained for the duration of your subscription plus 90 days. You can request deletion at any
+          time by emailing <a href="/cdn-cgi/l/email-protection" class="__cf_email__"
+            data-cfemail="cca4a9a0a0a38cafa0adb8beb5b4e2a5a3">[email&#160;protected]</a>.</p>
+        <h3>Contact</h3>
+        <p>For privacy enquiries: <a href="/cdn-cgi/l/email-protection" class="__cf_email__"
+            data-cfemail="1a727f7676755a79767b6e686362347375">[email&#160;protected]</a></p>
+      </div>
+    </div>
+
+    <!-- PAGE: TERMS -->
+    <div class="subpage" id="page-terms">
+      <div class="sp-hero">
+        <div class="section-tag">Terms of Service</div>
+        <h1 class="sp-h1">Simple, <em>fair terms.</em></h1>
+        <p class="sp-lead">Last updated: February 2026</p>
+      </div>
+      <div class="sp-legal-body">
+        <h3>Service</h3>
+        <p>Caltryx provides AI cost observability and budget enforcement infrastructure. You use the service to track
+          LLM usage, attribute costs, and enforce budgets across your AI workloads.</p>
+        <h3>Your responsibilities</h3>
+        <p>You are responsible for the API keys you add, the agents you configure, and the LLM calls made through your
+          workspace. You must not use Caltryx to track or attribute costs from workloads you do not own or have
+          permission to monitor.</p>
+        <h3>BYOK</h3>
+        <p>Bring Your Own Key (BYOK) means you supply your own OpenAI/Anthropic credentials. Caltryx does not pay for or
+          resell LLM usage. All LLM costs are billed directly by your provider to you.</p>
+        <h3>Billing</h3>
+        <p>Subscriptions are billed monthly. You can cancel at any time. No refunds for partial months, but your access
+          continues until the end of the billing period. Enterprise contracts are governed by a separate agreement.</p>
+        <h3>Limitation of liability</h3>
+        <p>Caltryx is a monitoring tool. We are not responsible for LLM costs incurred before Caltryx was integrated,
+          during outages, or where budget enforcement could not be applied due to external factors.</p>
+        <h3>Contact</h3>
+        <p>For terms enquiries: <a href="/cdn-cgi/l/email-protection" class="__cf_email__"
+            data-cfemail="79111c151516391a15180d0b0001571016">[email&#160;protected]</a></p>
+      </div>
+    </div>
+
+  </div><!-- end subpage-overlay -->
+
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module">
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+    let supabase = null;
+    if (supabaseUrl && supabaseKey && supabaseUrl !== 'YOUR_SUPABASE_URL_HERE') {
+      supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    } else {
+      console.warn("Supabase credentials not found. Waitlist will not function.");
+    }
+
+    // ══════════════════════════════════════════════
+    // CUSTOM CURSOR
+    // ══════════════════════════════════════════════
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursor-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+    });
+
+    function animRing() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+      requestAnimationFrame(animRing);
+    }
+    animRing();
+
+    document.querySelectorAll('a, button, input, .how-step, .problem-card, .pricing-card, .faq-item').forEach(el => {
+      el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+      el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+    });
+
+    // ══════════════════════════════════════════════
+    // THREE.JS — FLOATING 3D SPHERES IN HERO
+    // ══════════════════════════════════════════════
+    const canvas = document.getElementById('hero-canvas');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, canvas.offsetWidth / canvas.offsetHeight, 0.1, 100);
+    camera.position.z = 8;
+
+    function resizeRenderer() {
+      const w = canvas.offsetWidth, h = canvas.offsetHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    resizeRenderer();
+    window.addEventListener('resize', resizeRenderer);
+
+    // Lights
+    const ambLight = new THREE.AmbientLight(0xffffff, 0.4);
+    scene.add(ambLight);
+    const dirLight = new THREE.DirectionalLight(0x2D5BE3, 1.2);
+    dirLight.position.set(5, 5, 5);
+    scene.add(dirLight);
+    const pointLight = new THREE.PointLight(0x7C3AED, 0.8, 20);
+    pointLight.position.set(-5, 3, 2);
+    scene.add(pointLight);
+
+    // Floating spheres
+    const spheres = [];
+    const geo = new THREE.SphereGeometry(1, 32, 32);
+    const colors = [0x2D5BE3, 0x7C3AED, 0x3D6BF3, 0xC4B5FD, 0x93C5FD];
+    const positions = [
+      [-5, 2.5, -2], [5, -1.5, -3], [-3.5, -2, -1.5],
+      [4, 2, -2.5], [0, -3, -4], [-6, 0, -3], [6, 1, -4]
+    ];
+    const sizes = [0.35, 0.55, 0.25, 0.45, 0.3, 0.2, 0.4];
+
+    positions.forEach((pos, i) => {
+      const mat = new THREE.MeshPhongMaterial({
+        color: colors[i % colors.length],
+        transparent: true, opacity: 0.18,
+        shininess: 100,
+        specular: new THREE.Color(0xffffff)
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(...pos);
+      mesh.scale.setScalar(sizes[i]);
+      mesh.userData = { ox: pos[0], oy: pos[1], speed: 0.3 + Math.random() * 0.4, phase: Math.random() * Math.PI * 2, rotSpeed: (Math.random() - 0.5) * 0.01 };
+      scene.add(mesh);
+      spheres.push(mesh);
+    });
+
+    // Wireframe icosahedron
+    const icoGeo = new THREE.IcosahedronGeometry(1.8, 1);
+    const icoMat = new THREE.MeshBasicMaterial({ color: 0x2D5BE3, wireframe: true, transparent: true, opacity: 0.06 });
+    const ico = new THREE.Mesh(icoGeo, icoMat);
+    ico.position.set(5.5, 1, -4);
+    scene.add(ico);
+
+    // Torus
+    const torusGeo = new THREE.TorusGeometry(1.2, 0.3, 16, 100);
+    const torusMat = new THREE.MeshPhongMaterial({ color: 0x7C3AED, transparent: true, opacity: 0.12, wireframe: false });
+    const torus = new THREE.Mesh(torusGeo, torusMat);
+    torus.position.set(-5.5, -1.5, -3);
+    scene.add(torus);
+
+    let t = 0, mouseX3d = 0, mouseY3d = 0;
+    document.addEventListener('mousemove', e => {
+      mouseX3d = (e.clientX / window.innerWidth - 0.5) * 2;
+      mouseY3d = (e.clientY / window.innerHeight - 0.5) * 2;
+    });
+
+    function animate3D() {
+      requestAnimationFrame(animate3D);
+      t += 0.008;
+      spheres.forEach(s => {
+        s.position.y = s.userData.oy + Math.sin(t * s.userData.speed + s.userData.phase) * 0.5;
+        s.rotation.x += s.userData.rotSpeed;
+        s.rotation.y += s.userData.rotSpeed * 0.7;
+      });
+      ico.rotation.x += 0.003;
+      ico.rotation.y += 0.005;
+      torus.rotation.x += 0.008;
+      torus.rotation.z += 0.005;
+      camera.position.x += (mouseX3d * 0.5 - camera.position.x) * 0.03;
+      camera.position.y += (-mouseY3d * 0.3 - camera.position.y) * 0.03;
+      renderer.render(scene, camera);
+    }
+    animate3D();
+
+    // ══════════════════════════════════════════════
+    // SCROLL PROGRESS BAR
+    // ══════════════════════════════════════════════
+    const progressBar = document.getElementById('progress-bar');
+    window.addEventListener('scroll', () => {
+      const pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100;
+      progressBar.style.width = pct + '%';
+    });
+
+    // ══════════════════════════════════════════════
+    // NAVBAR SCROLL BEHAVIOR
+    // ══════════════════════════════════════════════
+    window.addEventListener('scroll', () => {
+      document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 60);
+    });
+
+    // ══════════════════════════════════════════════
+    // SCROLL REVEAL (all variants)
+    // ══════════════════════════════════════════════
+    const revealObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale').forEach(el => revealObs.observe(el));
+
+    // ══════════════════════════════════════════════
+    // STICKY HOW-IT-WORKS
+    // ══════════════════════════════════════════════
+    const steps = document.querySelectorAll('.how-step');
+    const visual = document.getElementById('step-visual');
+    const bgs = ['sv-1', 'sv-2', 'sv-3'];
+    const emojis = ['🔌', '🏷️', '🛡️'];
+
+    const stepObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting && e.intersectionRatio > 0.5) {
+          const idx = parseInt(e.target.dataset.step);
+          steps.forEach(s => s.classList.remove('active'));
+          e.target.classList.add('active');
+          visual.style.transform = 'scale(0.95) rotateY(10deg)';
+          setTimeout(() => {
+            visual.className = 'step-visual ' + bgs[idx];
+            visual.textContent = emojis[idx];
+            visual.style.transform = 'scale(1) rotateY(0deg)';
+          }, 200);
+        }
+      });
+    }, { threshold: 0.5 });
+    steps.forEach(s => stepObs.observe(s));
+
+    // ══════════════════════════════════════════════
+    // 3D HERO CARD — MOUSE TILT
+    // ══════════════════════════════════════════════
+    const card = document.getElementById('hero3dCard');
+    const wrap = document.getElementById('hero3d');
+    wrap.addEventListener('mousemove', e => {
+      const r = wrap.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      card.style.transform = `rotateX(${-y * 12}deg) rotateY(${x * 14}deg) translateZ(20px)`;
+    });
+    wrap.addEventListener('mouseleave', () => {
+      card.style.transform = 'rotateX(8deg) rotateY(-3deg)';
+    });
+
+    // ══════════════════════════════════════════════
+    // COUNTER ANIMATION
+    // ══════════════════════════════════════════════
+    function animateCounter(el, target, suffix, duration = 1800) {
+      let start = 0;
+      const step = target / (duration / 16);
+      const timer = setInterval(() => {
+        start = Math.min(start + step, target);
+        el.textContent = Math.round(start).toLocaleString() + suffix;
+        if (start >= target) clearInterval(timer);
+      }, 16);
+    }
+
+    const statsObs = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        document.querySelectorAll('[data-target]').forEach(el => {
+          animateCounter(el, parseInt(el.dataset.target), el.dataset.suffix);
+        });
+        statsObs.disconnect();
+      }
+    }, { threshold: 0.3 });
+    const statsSection = document.querySelector('.stats-section');
+    if (statsSection) statsObs.observe(statsSection);
+
+    // ══════════════════════════════════════════════
+    // FAQ ACCORDION
+    // ══════════════════════════════════════════════
+    document.querySelectorAll('.faq-item').forEach(item => {
+      item.querySelector('.faq-q').addEventListener('click', () => {
+        const isOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+        if (!isOpen) item.classList.add('open');
+      });
+    });
+
+    // ══════════════════════════════════════════════
+    // PARALLAX ON SCROLL
+    // ══════════════════════════════════════════════
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      const hero = document.querySelector('.hero h1');
+      if (hero) hero.style.transform = `translateY(${y * 0.08}px)`;
+    });
+
+    // ══════════════════════════════════════════════
+    // STAGGER CHILDREN on .problem-grid
+    // ══════════════════════════════════════════════
+    document.querySelectorAll('.problem-grid').forEach(grid => {
+      const observer = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting) {
+          grid.querySelectorAll('.problem-card').forEach((card, i) => {
+            setTimeout(() => card.classList.add('visible'), i * 80);
+          });
+          observer.disconnect();
+        }
+      }, { threshold: 0.1 });
+      observer.observe(grid);
+    });
+
+    // ══════════════════════════════════════════════
+    // WAITLIST EMAIL CAPTURE
+    // ══════════════════════════════════════════════
+    function handleWaitlist(inputId, btnId, noteId) {
+      const input = document.getElementById(inputId);
+      const btn = document.getElementById(btnId);
+      const note = document.getElementById(noteId);
+      if (!input || !btn) return;
+      btn.addEventListener('click', async () => {
+        const email = input.value.trim();
+        const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        if (!valid) {
+          input.style.outline = '2px solid #EF4444';
+          setTimeout(() => input.style.outline = '', 1500);
+          return;
+        }
+
+        if (supabase) {
+          btn.textContent = "Joining...";
+          const { error } = await supabase.from('waitlist').insert([{ email }]);
+          if (error) {
+            console.error("Supabase Error:", error);
+            if (note) { note.textContent = "Error joining waitlist. Please try again."; note.style.color = '#EF4444'; }
+            return;
+          }
+        } else {
+          // Fallback to localStorage if Supabase isn't configured
+          const list = JSON.parse(localStorage.getItem('Caltryx_waitlist') || '[]');
+          if (!list.includes(email)) list.push(email);
+          localStorage.setItem('Caltryx_waitlist', JSON.stringify(list));
+        }
+
+        input.value = '';
+        input.placeholder = email;
+        input.disabled = true;
+        btn.textContent = "✓ You're on the list!";
+        btn.style.background = '#10B981';
+        btn.disabled = true;
+        if (note) { note.textContent = "We'll be in touch soon. Thank you!"; note.style.color = '#10B981'; }
+      });
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') btn.click(); });
+    }
+    handleWaitlist('waitlist-input', 'waitlist-btn', 'waitlist-note');
+    handleWaitlist('final-waitlist-input', 'final-waitlist-btn', 'final-waitlist-note');
+
+    // ══════════════════════════════════════════════
+    // SPA ROUTER — with animated transitions
+    // ══════════════════════════════════════════════
+    const overlay = document.getElementById('subpage-overlay');
+    const backBtn = document.getElementById('subpage-back');
+    const backLogo = document.getElementById('subpage-back-logo');
+    const veil = document.getElementById('page-transition-veil');
+    let isTransitioning = false;
+
+    function runTransition(cb) {
+      if (isTransitioning) return;
+      isTransitioning = true;
+      veil.classList.remove('exiting');
+      veil.classList.add('entering');
+      setTimeout(() => {
+        cb();
+        veil.classList.remove('entering');
+        veil.classList.add('exiting');
+        setTimeout(() => { veil.classList.remove('exiting'); isTransitioning = false; }, 460);
+      }, 460);
+    }
+
+    function openPage(pageId) {
+      runTransition(() => {
+        document.querySelectorAll('.subpage').forEach(p => p.classList.remove('active'));
+        const target = document.getElementById('page-' + pageId);
+        if (!target) return;
+        target.classList.add('active');
+        overlay.classList.add('open');
+        overlay.scrollTop = 0;
+        document.body.style.overflow = 'hidden';
+        history.pushState({ page: pageId }, '', '#' + pageId);
+        bootSubpageCanvas(pageId);
+      });
+    }
+
+    function closePage() {
+      runTransition(() => {
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+        history.pushState({}, '', window.location.pathname);
+      });
+    }
+
+    document.addEventListener('click', e => {
+      const el = e.target.closest('[data-page]');
+      if (el) { e.preventDefault(); openPage(el.dataset.page); }
+    });
+    backBtn.addEventListener('click', closePage);
+    backLogo.addEventListener('click', e => { e.preventDefault(); closePage(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && overlay.classList.contains('open')) closePage(); });
+    window.addEventListener('popstate', e => {
+      if (!e.state || !e.state.page) closePage();
+      else openPage(e.state.page);
+    });
+
+    // ══════════════════════════════════════════════
+    // SUBPAGE 3D FLOATING PARTICLES
+    // ══════════════════════════════════════════════
+    const bootedCanvases = new Set();
+    function bootSubpageCanvas(pageId) {
+      const canvasMap = { 'features': 'sp-canvas-features', 'how-it-works': 'sp-canvas-how', 'pricing': 'sp-canvas-pricing', 'sdk-docs': 'sp-canvas-sdk', 'about': 'sp-canvas-about', 'blog': 'sp-canvas-blog', 'contact': 'sp-canvas-contact' };
+      const canvasId = canvasMap[pageId];
+      if (!canvasId || bootedCanvases.has(canvasId)) return;
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      bootedCanvases.add(canvasId);
+
+      const spR = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      spR.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      const spS = new THREE.Scene();
+      const spC = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 100);
+      spC.position.z = 10;
+      function rsz() { spR.setSize(window.innerWidth, window.innerHeight, false); spC.aspect = window.innerWidth / window.innerHeight; spC.updateProjectionMatrix(); }
+      rsz(); window.addEventListener('resize', rsz);
+
+      spS.add(new THREE.AmbientLight(0xffffff, 0.5));
+      const dl = new THREE.DirectionalLight(0x2D5BE3, 1.5); dl.position.set(5, 5, 5); spS.add(dl);
+      const pl = new THREE.PointLight(0x7C3AED, 0.7, 25); pl.position.set(-6, 3, 2); spS.add(pl);
+
+      const spGeo = new THREE.SphereGeometry(1, 24, 24);
+      const spCols = [0x2D5BE3, 0x7C3AED, 0x3D6BF3, 0xC4B5FD, 0x93C5FD, 0x6EE7A0];
+      const spMs = [];
+      const n = pageId === 'features' ? 12 : 9;
+      for (let i = 0; i < n; i++) {
+        const mat = new THREE.MeshPhongMaterial({ color: spCols[i % spCols.length], transparent: true, opacity: 0.08 + Math.random() * 0.1, shininess: 80 });
+        const m = new THREE.Mesh(spGeo, mat);
+        const ox = (Math.random() - 0.5) * 20, oy = (Math.random() - 0.5) * 14;
+        m.position.set(ox, oy, -4 - Math.random() * 4);
+        m.scale.setScalar(0.2 + Math.random() * 0.65);
+        m.userData = { ox, oy, sp: 0.2 + Math.random() * 0.4, ph: Math.random() * Math.PI * 2, rs: (Math.random() - 0.5) * 0.008 };
+        spS.add(m); spMs.push(m);
+      }
+      const icoG = new THREE.IcosahedronGeometry(2, 1);
+      const ico = new THREE.Mesh(icoG, new THREE.MeshBasicMaterial({ color: 0x2D5BE3, wireframe: true, transparent: true, opacity: 0.04 }));
+      ico.position.set(7, -2, -6); spS.add(ico);
+      const tor = new THREE.Mesh(new THREE.TorusGeometry(1.5, 0.25, 12, 80), new THREE.MeshPhongMaterial({ color: 0x7C3AED, transparent: true, opacity: 0.07 }));
+      tor.position.set(-7, 2, -5); spS.add(tor);
+
+      let spT = 0, smx = 0, smy = 0;
+      const tm = e => { smx = (e.clientX / window.innerWidth - 0.5) * 2; smy = (e.clientY / window.innerHeight - 0.5) * 2; };
+      window.addEventListener('mousemove', tm);
+
+      function animSP() {
+        if (!overlay.classList.contains('open')) { window.removeEventListener('mousemove', tm); return; }
+        requestAnimationFrame(animSP); spT += 0.007;
+        spMs.forEach(m => { m.position.y = m.userData.oy + Math.sin(spT * m.userData.sp + m.userData.ph) * 0.7; m.rotation.x += m.userData.rs; m.rotation.y += m.userData.rs * 0.6; });
+        ico.rotation.x += 0.002; ico.rotation.y += 0.004;
+        tor.rotation.x += 0.006; tor.rotation.z += 0.004;
+        spC.position.x += (smx * 0.4 - spC.position.x) * 0.025;
+        spC.position.y += (-smy * 0.25 - spC.position.y) * 0.025;
+        spR.render(spS, spC);
+      }
+      animSP();
+    }
+
+    // ══════════════════════════════════════════════
+    // SUBPAGE WAITLIST BANNER HANDLERS
+    // ══════════════════════════════════════════════
+    function handleBannerWaitlist(inputCls, btnCls) {
+      document.querySelectorAll('.' + btnCls).forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const input = btn.closest('.sp-wb-form')?.querySelector('.' + inputCls);
+          if (!input) return;
+          const email = input.value.trim();
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { input.style.outline = '2px solid #EF4444'; setTimeout(() => input.style.outline = '', 1500); return; }
+
+          if (supabase) {
+            btn.textContent = "...";
+            const { error } = await supabase.from('waitlist').insert([{ email }]);
+            if (error) {
+              console.error("Supabase Error:", error);
+              return;
+            }
+          } else {
+            const list = JSON.parse(localStorage.getItem('Caltryx_waitlist') || '[]');
+            if (!list.includes(email)) list.push(email);
+            localStorage.setItem('Caltryx_waitlist', JSON.stringify(list));
+          }
+
+          input.value = ''; input.placeholder = email; input.disabled = true;
+          btn.textContent = "✓ You're in!"; btn.classList.add('done'); btn.disabled = true;
+        });
+        btn.closest('.sp-wb-form')?.querySelector('input')?.addEventListener('keydown', e => { if (e.key === 'Enter') btn.click(); });
+      });
+    }
+    ['features', 'how', 'pricing', 'about', 'contact'].forEach(p => handleBannerWaitlist('sp-wbl-' + p, 'sp-wbl-btn-' + p));
+    document.querySelectorAll('.sp-doc-link-card[data-page]').forEach(c => c.addEventListener('click', () => openPage(c.dataset.page)));
+  </script>
+</body>
+
+</html>
