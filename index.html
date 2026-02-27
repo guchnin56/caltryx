@@ -3230,6 +3230,198 @@
       background: rgba(28, 28, 28, 0.2);
       border-radius: 3px;
     }
+
+    /* ── MOBILE RESPONSIVENESS ── */
+    @media (max-width: 768px) {
+
+      /* Typography & Paddings */
+      section {
+        padding: 60px 24px !important;
+      }
+
+      .hero {
+        padding: 120px 24px 60px;
+      }
+
+      .hero h1,
+      .sp-h1 {
+        font-size: 36px !important;
+      }
+
+      .section-title,
+      .stats-title,
+      .final-cta h2 {
+        font-size: 32px !important;
+      }
+
+      .stats-section {
+        margin: 0 16px;
+        padding: 60px 32px;
+      }
+
+      /* Disable Custom Cursor on Touch */
+      @media (pointer: coarse) {
+
+        #cursor,
+        #cursor-ring {
+          display: none !important;
+        }
+      }
+
+      /* Navbar */
+      .nav-links {
+        display: none;
+      }
+
+      nav {
+        padding: 16px 24px;
+      }
+
+      nav.scrolled {
+        padding: 12px 24px;
+      }
+
+      /* Grids to single column */
+      .problem-grid,
+      .how-section,
+      .report-grid,
+      .pricing-grid,
+      .pricing-grid-4,
+      .not-grid,
+      .stats-grid,
+      .footer-grid,
+      .sp-feature-grid,
+      .sp-doc-grid,
+      .sp-blog-grid,
+      .sp-contact-grid,
+      .sp-contact-x-layout,
+      .sp-about-body {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+
+      /* Specific spacing for mobile grids */
+      .how-left {
+        position: relative;
+        top: 0;
+      }
+
+      .stats-grid {
+        gap: 32px;
+        padding-top: 32px;
+      }
+
+      .sp-step {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .sp-step-num {
+        padding-top: 0;
+      }
+
+      .sp-cl-item {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      /* Flex layouts */
+      .hero-input-wrap,
+      .final-input-wrap,
+      .sp-wb-form {
+        flex-direction: column;
+        border-radius: 20px;
+        padding: 12px;
+        align-items: stretch;
+      }
+
+      .hero-input,
+      .final-input,
+      .sp-wb-input {
+        padding: 12px;
+        text-align: center;
+        width: 100%;
+      }
+
+      .hero-input-btn,
+      .final-input-btn,
+      .sp-wb-btn {
+        width: 100%;
+        margin-top: 8px;
+        justify-content: center;
+      }
+
+      /* Pricing */
+      .pricing-showcase {
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+        margin-top: 32px;
+      }
+
+      .pc-card {
+        transform: none !important;
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+      }
+
+      .pc-card-left,
+      .pc-card-right {
+        opacity: 1;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.1);
+      }
+
+      .pc-card-center {
+        z-index: 10;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px var(--accent);
+      }
+
+      .pc-enterprise-banner {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 24px;
+      }
+
+      .pc-ent-cta {
+        text-align: center;
+      }
+
+      /* Dashboard Mockup */
+      .dash-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .dash-sidebar {
+        display: none;
+      }
+
+      .dash-stats-row {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .dash-mid-row {
+        grid-template-columns: 1fr;
+      }
+
+      /* Report List */
+      .report-item {
+        flex-direction: row;
+        gap: 16px;
+      }
+
+      /* Footer */
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+      }
+    }
   </style>
 </head>
 
