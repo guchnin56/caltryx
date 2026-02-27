@@ -3235,47 +3235,86 @@
     @media (max-width: 768px) {
 
       /* Prevent horizontal overflow */
-      *, *::before, *::after {
+      *,
+      *::before,
+      *::after {
         max-width: 100%;
         box-sizing: border-box;
       }
 
       /* Hide custom cursor - broken on touch */
-      #cursor, #cursor-ring {
+      #cursor,
+      #cursor-ring {
         display: none !important;
       }
 
       /* Restore native cursor */
-      body { cursor: auto; }
+      body {
+        cursor: auto;
+      }
 
-      .btn-pill, .btn-ghost, .hero-input-btn, .pricing-btn,
-      .pc-cta, .pc-ent-cta, .sp-wb-btn, .faq-item, .how-step {
+      .btn-pill,
+      .btn-ghost,
+      .hero-input-btn,
+      .pricing-btn,
+      .pc-cta,
+      .pc-ent-cta,
+      .sp-wb-btn,
+      .faq-item,
+      .how-step {
         cursor: pointer;
       }
 
       /* ── NAVBAR ── */
-      nav { padding: 14px 20px; }
-      nav.scrolled { padding: 10px 20px; }
-      .nav-links { display: none; }
+      nav {
+        padding: 10px 16px;
+      }
+
+      nav.scrolled {
+        padding: 8px 16px;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .nav-logo {
+        font-size: 18px;
+      }
+
+      /* Shrink the CTA button so nav stays compact */
+      .nav-actions .btn-pill {
+        padding: 8px 14px;
+        font-size: 13px;
+      }
+
+      .nav-actions .btn-pill .arrow {
+        display: none;
+      }
 
       /* ── SECTION PADDING ── */
-      section { padding: 52px 20px !important; }
+      section {
+        padding: 52px 20px !important;
+      }
 
       /* ── HERO ── */
       .hero {
-        padding: 100px 20px 44px;
+        padding: 90px 20px 40px;
         min-height: unset;
       }
+
       .hero h1 {
         font-size: clamp(28px, 8vw, 40px) !important;
         letter-spacing: -1px;
         margin-bottom: 16px;
       }
+
       .hero p {
         font-size: 15px;
         max-width: 100%;
         margin-bottom: 28px;
       }
+
       .hero-input-wrap {
         flex-direction: column;
         border-radius: 14px;
@@ -3283,39 +3322,52 @@
         align-items: stretch;
         max-width: 100%;
       }
+
       .hero-input {
         padding: 12px 10px;
         font-size: 15px;
       }
+
       .hero-input-btn {
         width: 100%;
         margin-top: 8px;
         justify-content: center;
         border-radius: 10px;
       }
-      .hero-sub-note { margin-bottom: 0; }
+
+      .hero-sub-note {
+        margin-bottom: 0;
+      }
 
       /* HIDE heavy 3D dashboard card - causes major horizontal overflow */
-      .hero-3d-wrap { display: none; }
+      .hero-3d-wrap {
+        display: none;
+      }
 
       /* ── HOW IT WORKS ── */
       .how-section {
         grid-template-columns: 1fr;
         gap: 20px;
       }
+
       .how-left {
         position: relative;
         top: 0;
       }
+
       .step-visual {
         font-size: 56px;
         aspect-ratio: 16/9;
       }
+
       .how-step {
         transform: none;
         padding: 20px;
       }
-      .how-step.active { transform: none; }
+
+      .how-step.active {
+        transform: none;
+      }
 
       /* ── PROBLEM CARDS ── */
       .problem-grid {
@@ -3330,7 +3382,10 @@
         flex-direction: column;
         gap: 28px;
       }
-      .report-3d-wrap { display: none; }
+
+      .report-3d-wrap {
+        display: none;
+      }
 
       /* ── NOT-GRID ── */
       .not-grid {
@@ -3344,16 +3399,21 @@
         margin: 0 12px;
         padding: 44px 22px;
       }
+
       .stats-title {
         font-size: clamp(24px, 7vw, 32px) !important;
         margin-bottom: 36px;
       }
+
       .stats-grid {
         grid-template-columns: 1fr 1fr;
         gap: 24px;
         padding-top: 28px;
       }
-      .stat-num { font-size: clamp(28px, 7vw, 44px); }
+
+      .stat-num {
+        font-size: clamp(28px, 7vw, 44px);
+      }
 
       /* ── PRICING ── */
       .pricing-showcase {
@@ -3363,43 +3423,69 @@
         margin-top: 24px;
         perspective: none;
       }
+
       .pc-card {
         transform: none !important;
         width: 100%;
         max-width: 100%;
         margin: 0;
         opacity: 1 !important;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.1) !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
       }
-      .pc-price-main { font-size: 34px; }
-      .pc-enterprise-row { margin: 12px 0 0; }
+
+      .pc-price-main {
+        font-size: 34px;
+      }
+
+      .pc-enterprise-row {
+        margin: 12px 0 0;
+      }
+
       .pc-enterprise-banner {
         padding: 22px;
         flex-direction: column;
         gap: 18px;
         align-items: stretch;
       }
+
       .pc-ent-cta {
         text-align: center;
         width: 100%;
       }
 
       /* ── DASHBOARD MOCKUP ── */
-      .dash-layout { grid-template-columns: 1fr; }
-      .dash-sidebar { display: none; }
+      .dash-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .dash-sidebar {
+        display: none;
+      }
+
       .dash-stats-row {
         grid-template-columns: 1fr 1fr;
         gap: 8px;
       }
-      .dash-mid-row { grid-template-columns: 1fr; }
+
+      .dash-mid-row {
+        grid-template-columns: 1fr;
+      }
 
       /* ── SECTION TEXT ── */
-      .section-title, .final-cta h2, .sp-h1 {
+      .section-title,
+      .final-cta h2,
+      .sp-h1 {
         font-size: clamp(24px, 7vw, 34px) !important;
         letter-spacing: -0.5px;
       }
-      .section-sub { font-size: 15px; }
-      .section-tag { margin-bottom: 14px; }
+
+      .section-sub {
+        font-size: 15px;
+      }
+
+      .section-tag {
+        margin-bottom: 14px;
+      }
 
       /* ── FAQ ── */
       .faq-q {
@@ -3408,12 +3494,16 @@
       }
 
       /* ── FOOTER ── */
-      footer { padding: 44px 20px 28px; }
+      footer {
+        padding: 44px 20px 28px;
+      }
+
       .footer-grid {
         grid-template-columns: 1fr;
         gap: 24px;
         padding-bottom: 28px;
       }
+
       .footer-bottom {
         flex-direction: column;
         gap: 12px;
@@ -3421,7 +3511,10 @@
       }
 
       /* ── FINAL CTA ── */
-      .final-cta { padding: 48px 20px 64px; }
+      .final-cta {
+        padding: 48px 20px 64px;
+      }
+
       .final-input-wrap {
         flex-direction: column;
         border-radius: 14px;
@@ -3429,34 +3522,61 @@
         align-items: stretch;
         max-width: 100%;
       }
-      .final-input { padding: 12px 10px; }
+
+      .final-input {
+        padding: 12px 10px;
+      }
 
       /* ── MARQUEE ── */
-      .marquee-item { font-size: 14px; }
-      .marquee-section { padding: 18px 0; }
+      .marquee-item {
+        font-size: 14px;
+      }
+
+      .marquee-section {
+        padding: 18px 0;
+      }
 
       /* ── SUBPAGE OVERLAY ── */
-      #subpage-nav { padding: 14px 20px; }
-      .subpage { padding: 36px 20px 64px; }
-      .sp-hero { margin-bottom: 40px; }
-      .sp-h1 { font-size: clamp(26px, 8vw, 40px) !important; }
+      #subpage-nav {
+        padding: 14px 20px;
+      }
+
+      .subpage {
+        padding: 36px 20px 64px;
+      }
+
+      .sp-hero {
+        margin-bottom: 40px;
+      }
+
+      .sp-h1 {
+        font-size: clamp(26px, 8vw, 40px) !important;
+      }
 
       /* Subpage grids */
-      .sp-feature-grid, .sp-doc-grid, .sp-blog-grid,
-      .sp-security-grid, .sp-doc-links,
-      .sp-contact-grid, .sp-contact-x-layout, .sp-about-body {
+      .sp-feature-grid,
+      .sp-doc-grid,
+      .sp-blog-grid,
+      .sp-security-grid,
+      .sp-doc-links,
+      .sp-contact-grid,
+      .sp-contact-x-layout,
+      .sp-about-body {
         grid-template-columns: 1fr;
         gap: 16px;
       }
+
       .sp-step {
         grid-template-columns: 1fr;
         gap: 12px;
         padding: 24px 0;
       }
+
       .sp-step-num {
         padding-top: 0;
         font-size: 32px;
       }
+
       .sp-cl-item {
         grid-template-columns: 1fr;
         gap: 10px;
@@ -3470,6 +3590,7 @@
         flex-direction: column;
         gap: 18px;
       }
+
       .sp-wb-form {
         flex-direction: row;
         align-items: center;
@@ -3478,10 +3599,12 @@
         flex-shrink: 0;
         width: 100%;
       }
+
       .sp-wb-input {
         min-width: 0;
         width: 100%;
       }
+
       .sp-wb-btn {
         width: auto;
         margin-top: 0;
@@ -5258,7 +5381,7 @@
         btn.closest('.sp-wb-form')?.querySelector('input')?.addEventListener('keydown', e => { if (e.key === 'Enter') btn.click(); });
       });
     }
-    ['features', 'how', 'pricing', 'about', 'contact'].forEach(p => handleBannerWaitlist('sp-wbl-' + p, 'sp-wbl-btn-' + p));
+    ['features', 'how', 'pricing', 'about', 'contact'].forEach(p => handlannist('sp-wbl-' + p, 'sp-wbl-btn-' + p));
     document.querySelectorAll('.sp-doc-link-card[data-page]').forEach(c => c.addEventListener('click', () => openPage(c.dataset.page)));
   </script>
 </body>
