@@ -1694,6 +1694,18 @@
     .pricing-card-banner {
       max-width: 1100px;
       margin: 0 auto 32px;
+      perspective: 1400px;
+    }
+
+    .pricing-card-banner .pricing-card {
+      transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+      animation: pc-float 6s ease-in-out infinite;
+    }
+
+    .pricing-card-banner .pricing-card:hover {
+      transform: translateY(-5px) rotateX(2deg) scale(1.01);
+      box-shadow: 0 30px 80px rgba(45, 91, 227, 0.12), 0 0 0 1px var(--accent);
+      border-color: rgba(45, 91, 227, 0.3);
     }
 
     .pricing-tier-icon {
@@ -2387,6 +2399,7 @@
     .pc-payg-row {
       max-width: 980px;
       margin: 48px auto 64px;
+      perspective: 1400px;
     }
 
     .pc-payg-banner {
@@ -2401,6 +2414,41 @@
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.05);
       position: relative;
       overflow: hidden;
+      transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+      animation: pc-float 6s ease-in-out infinite;
+    }
+
+    @keyframes pc-float {
+
+      0%,
+      100% {
+        transform: translateY(0) rotateX(0deg);
+      }
+
+      50% {
+        transform: translateY(-10px) rotateX(1deg);
+      }
+    }
+
+    .pc-payg-banner:hover {
+      transform: translateY(-5px) rotateX(2deg) rotateY(1deg) scale(1.01);
+      box-shadow: 0 30px 80px rgba(45, 91, 227, 0.12), 0 0 0 1px var(--accent);
+      border-color: rgba(45, 91, 227, 0.3);
+    }
+
+    .gear-icon {
+      display: inline-block;
+      animation: pc-spin 8s linear infinite;
+    }
+
+    @keyframes pc-spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
     }
 
     .pc-payg-left {
@@ -4137,7 +4185,7 @@
       <div class="pc-payg-banner">
         <div class="pc-payg-left">
           <div class="pc-payg-benefit">Low Traffic? Start here</div>
-          <h3>⚙️ Pay As You Go</h3>
+          <h3><span class="gear-icon">⚙️</span> Pay As You Go</h3>
           <div class="pc-payg-price">
             <span class="pc-payg-amount">$10</span>
             <span class="pc-payg-period">/ agent / month</span>
@@ -4636,7 +4684,7 @@
         <div class="pricing-card"
           style="display:flex;flex-direction:row;align-items:center;padding:32px 48px;gap:40px;text-align:left;width:100%;max-width:none;">
           <div style="flex:1;">
-            <div class="pricing-tier-icon" style="margin:0 0 12px;">⚙️</div>
+            <div class="pricing-tier-icon gear-icon" style="margin:0 0 12px;">⚙️</div>
             <div class="pricing-label">Pay As You Go</div>
             <div class="pricing-price" style="margin:0;">$10 <span
                 style="font-size:16px;color:var(--muted);font-weight:500;">/ agent / month</span></div>
