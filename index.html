@@ -1683,12 +1683,17 @@
     }
 
     /* ── PRICING 4-GRID ── */
-    .pricing-grid-4 {
+    .pricing-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 24px;
-      max-width: 1200px;
+      max-width: 1100px;
       margin: 0 auto;
+    }
+
+    .pricing-card-banner {
+      max-width: 1100px;
+      margin: 0 auto 32px;
     }
 
     .pricing-tier-icon {
@@ -2102,8 +2107,8 @@
 
     .pc-card-left {
       transform: rotate(-6deg) translateX(48px) translateY(28px);
-      z-index: 1;
-      opacity: 0.82;
+      z-index: 2;
+      opacity: 0.85;
       box-shadow: -8px 20px 60px rgba(0, 0, 0, 0.1);
     }
 
@@ -2117,7 +2122,7 @@
 
     .pc-card-right {
       transform: rotate(6deg) translateX(-48px) translateY(28px);
-      z-index: 2;
+      z-index: 1;
       opacity: 0.88;
       box-shadow: 8px 20px 60px rgba(0, 0, 0, 0.1);
     }
@@ -2378,10 +2383,108 @@
       box-shadow: 0 8px 24px rgba(45, 91, 227, 0.35);
     }
 
+    /* PAYG Banner styles */
+    .pc-payg-row {
+      max-width: 980px;
+      margin: 48px auto 64px;
+    }
+
+    .pc-payg-banner {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: 28px;
+      padding: 32px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pc-payg-left {
+      flex: 1;
+    }
+
+    .pc-payg-left h3 {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--dark);
+      margin: 0 0 8px;
+    }
+
+    .pc-payg-price {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .pc-payg-amount {
+      font-size: 42px;
+      font-weight: 800;
+      color: var(--dark);
+      letter-spacing: -2px;
+    }
+
+    .pc-payg-period {
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .pc-payg-benefit {
+      font-size: 14px;
+      background: rgba(45, 91, 227, 0.08);
+      color: var(--accent);
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-weight: 600;
+      display: inline-block;
+      margin-bottom: 16px;
+    }
+
+    .pc-payg-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 24px;
+      flex: 2;
+    }
+
+    .pc-payg-feat {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 500;
+      min-width: 180px;
+    }
+
+    .pc-payg-feat span {
+      color: #10B981;
+      font-weight: 800;
+    }
+
+    .pc-payg-cta {
+      background: var(--dark);
+      color: #fff;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 100px;
+      font-family: var(--sans);
+      font-weight: 700;
+      font-size: 15px;
+      cursor: none;
+      transition: transform 0.3s, background 0.3s;
+      white-space: nowrap;
+    }
+
     /* Enterprise banner row */
     .pc-enterprise-row {
       max-width: 980px;
-      margin: 64px auto 0;
+      margin: 80px auto 0;
     }
 
     .pc-enterprise-banner {
@@ -4029,35 +4132,32 @@
         for itself the first time it stops a runaway bill.</p>
     </div>
 
+    <!-- PAYG Highlight Banner -->
+    <div class="pc-payg-row reveal">
+      <div class="pc-payg-banner">
+        <div class="pc-payg-left">
+          <div class="pc-payg-benefit">Low Traffic? Start here</div>
+          <h3>⚙️ Pay As You Go</h3>
+          <div class="pc-payg-price">
+            <span class="pc-payg-amount">$10</span>
+            <span class="pc-payg-period">/ agent / month</span>
+          </div>
+          <p style="font-size:14px;color:var(--muted);margin:0;">No commitment. Pay only for what you use.</p>
+        </div>
+        <div class="pc-payg-features">
+          <div class="pc-payg-feat"><span>✓</span> Unlimited agents</div>
+          <div class="pc-payg-feat"><span>✓</span> BYOK included</div>
+          <div class="pc-payg-feat"><span>✓</span> Pay per active agent</div>
+          <div class="pc-payg-feat"><span>✓</span> All core features</div>
+          <div class="pc-payg-feat"><span>✓</span> No minimum spend</div>
+          <div class="pc-payg-feat"><span>✓</span> Cancel anytime</div>
+        </div>
+        <button class="pc-payg-cta">Join Waitlist →</button>
+      </div>
+    </div>
+
     <!-- 3 card showcase -->
     <div class="pricing-showcase reveal">
-
-      <!-- FAR LEFT: Pay As You Go -->
-      <div class="pc-card pc-card-payg"
-        style="transform: rotate(-9deg) translateX(80px) translateY(40px); z-index:0; opacity:0.75;">
-        <div class="pc-plan-name">Pay As You Go</div>
-        <div class="pc-price-row">
-          <div class="pc-price-main">$10</div>
-        </div>
-        <div class="pc-price-meta">/ agent / month (USD)</div>
-        <div class="pc-price-billed">Pay only for what you use</div>
-        <div class="pc-desc">Ideal for sporadic usage or testing new agent architectures.</div>
-        <div class="pc-features">
-          <div class="pc-feat included">
-            <div class="pc-feat-icon">✓</div>Unlimited agents
-          </div>
-          <div class="pc-feat included">
-            <div class="pc-feat-icon">✓</div>Pay per active agent
-          </div>
-          <div class="pc-feat included">
-            <div class="pc-feat-icon">✓</div>All core features
-          </div>
-          <div class="pc-feat included">
-            <div class="pc-feat-icon">✓</div>BYOK included
-          </div>
-        </div>
-        <button class="pc-cta pc-cta-light">Join Waitlist →</button>
-      </div>
 
       <!-- LEFT: Starter -->
       <div class="pc-card pc-card-left">
@@ -4532,20 +4632,28 @@
         <p class="sp-lead">Every plan includes BYOK. Every plan pays for itself the moment it catches one runaway LLM
           bill.</p>
       </div>
-      <div class="pricing-grid-4" style="margin-top:0;">
-        <div class="pricing-card">
-          <div class="pricing-tier-icon">⚙️</div>
-          <div class="pricing-label">Pay As You Go</div>
-          <div class="pricing-price">$10</div>
-          <div class="pricing-period">per agent / month</div>
-          <div class="pricing-features">
+      <div class="pricing-card-banner">
+        <div class="pricing-card"
+          style="display:flex;flex-direction:row;align-items:center;padding:32px 48px;gap:40px;text-align:left;width:100%;max-width:none;">
+          <div style="flex:1;">
+            <div class="pricing-tier-icon" style="margin:0 0 12px;">⚙️</div>
+            <div class="pricing-label">Pay As You Go</div>
+            <div class="pricing-price" style="margin:0;">$10 <span
+                style="font-size:16px;color:var(--muted);font-weight:500;">/ agent / month</span></div>
+          </div>
+          <div class="pricing-features"
+            style="flex:2;display:grid;grid-template-columns:repeat(2,1fr);margin:0;border:none;padding:0;">
             <div class="pricing-feature"><span class="pricing-check">✓</span> Unlimited agents</div>
             <div class="pricing-feature"><span class="pricing-check">✓</span> Pay per active agent</div>
             <div class="pricing-feature"><span class="pricing-check">✓</span> All core features</div>
             <div class="pricing-feature"><span class="pricing-check">✓</span> BYOK included</div>
-            <div class="pricing-feature"><span class="pricing-check">✓</span> Cancel anytime</div>
-          </div><button class="pricing-btn" style="background:var(--dark);">Join waitlist →</button>
+          </div>
+          <button class="pricing-btn" style="background:var(--dark);margin:0;width:auto;padding:16px 32px;">Join
+            waitlist →</button>
         </div>
+      </div>
+
+      <div class="pricing-grid" style="margin-top:0;">
         <div class="pricing-card">
           <div class="pricing-tier-icon">🧱</div>
           <div class="pricing-label">Starter</div>
