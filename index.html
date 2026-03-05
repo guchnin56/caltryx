@@ -1685,9 +1685,9 @@
     /* ── PRICING 4-GRID ── */
     .pricing-grid-4 {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 24px;
-      max-width: 900px;
+      max-width: 1200px;
       margin: 0 auto;
     }
 
@@ -2381,7 +2381,7 @@
     /* Enterprise banner row */
     .pc-enterprise-row {
       max-width: 980px;
-      margin: 24px auto 0;
+      margin: 64px auto 0;
     }
 
     .pc-enterprise-banner {
@@ -4032,6 +4032,33 @@
     <!-- 3 card showcase -->
     <div class="pricing-showcase reveal">
 
+      <!-- FAR LEFT: Pay As You Go -->
+      <div class="pc-card pc-card-payg"
+        style="transform: rotate(-9deg) translateX(80px) translateY(40px); z-index:0; opacity:0.75;">
+        <div class="pc-plan-name">Pay As You Go</div>
+        <div class="pc-price-row">
+          <div class="pc-price-main">$10</div>
+        </div>
+        <div class="pc-price-meta">/ agent / month (USD)</div>
+        <div class="pc-price-billed">Pay only for what you use</div>
+        <div class="pc-desc">Ideal for sporadic usage or testing new agent architectures.</div>
+        <div class="pc-features">
+          <div class="pc-feat included">
+            <div class="pc-feat-icon">✓</div>Unlimited agents
+          </div>
+          <div class="pc-feat included">
+            <div class="pc-feat-icon">✓</div>Pay per active agent
+          </div>
+          <div class="pc-feat included">
+            <div class="pc-feat-icon">✓</div>All core features
+          </div>
+          <div class="pc-feat included">
+            <div class="pc-feat-icon">✓</div>BYOK included
+          </div>
+        </div>
+        <button class="pc-cta pc-cta-light">Join Waitlist →</button>
+      </div>
+
       <!-- LEFT: Starter -->
       <div class="pc-card pc-card-left">
         <div class="pc-toggle">
@@ -4042,10 +4069,11 @@
             style="width:7px;height:7px;background:#F59E0B;border-radius:50%;display:inline-block;"></span> Active</div>
         <div class="pc-plan-name">Starter</div>
         <div class="pc-price-row">
-          <div class="pc-price-main">$19</div>
+          <div class="pc-price-main" data-monthly="$24" data-annual="$19">$19</div>
         </div>
         <div class="pc-price-meta">/ month (USD)</div>
-        <div class="pc-price-billed">$228 billed yearly</div>
+        <div class="pc-price-billed" data-monthly="Billed monthly" data-annual="$228 billed yearly">$228 billed yearly
+        </div>
         <div class="pc-desc">For solo AI builders getting started. Essential visibility on 5 agents.</div>
         <div class="pc-features">
           <div class="pc-feat included">
@@ -4088,11 +4116,12 @@
         </div>
         <div class="pc-plan-name">Growth</div>
         <div class="pc-price-row">
-          <div class="pc-price-old">$65</div>
-          <div class="pc-price-main">$49</div>
+          <div class="pc-price-old" data-monthly="$89" data-annual="$65">$65</div>
+          <div class="pc-price-main" data-monthly="$69" data-annual="$49">$49</div>
         </div>
         <div class="pc-price-meta">/ month (USD)</div>
-        <div class="pc-price-billed">$588 billed yearly</div>
+        <div class="pc-price-billed" data-monthly="Billed monthly" data-annual="$588 billed yearly">$588 billed yearly
+        </div>
         <div class="pc-desc">For serious AI startups that need step-level attribution, SDK, and hard enforcement.</div>
         <div class="pc-features">
           <div class="pc-feat included">
@@ -4133,10 +4162,11 @@
           style="background:rgba(45,91,227,0.08);color:var(--accent);border-color:rgba(45,91,227,0.2);">Popular ●</div>
         <div class="pc-plan-name">Scale</div>
         <div class="pc-price-row">
-          <div class="pc-price-main">$129</div>
+          <div class="pc-price-main" data-monthly="$159" data-annual="$129">$129</div>
         </div>
         <div class="pc-price-meta">/ month (USD)</div>
-        <div class="pc-price-billed">$1,548 billed yearly</div>
+        <div class="pc-price-billed" data-monthly="Billed monthly" data-annual="$1,548 billed yearly">$1,548 billed
+          yearly</div>
         <div class="pc-desc">For AI-heavy teams needing multi-user workspaces, role permissions, and full control.</div>
         <div class="pc-features">
           <div class="pc-feat included">
@@ -4349,8 +4379,9 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <div class="footer-copy">Caltryx, 2026</div>
-      <div class="footer-legal">AI Cost Observability Infrastructure · Not affiliated with OpenAI or Anthropic.</div>
+      <div class="footer-copy">building with ❤️ by <a href="https://x.com/showslikesummu" target="_blank" rel="noopener"
+          style="color:inherit;text-decoration:underline;">summu</a> · Caltryx, 2026</div>
+      <div class="footer-legal">not affiliated to openai or anthropic.</div>
     </div>
   </footer>
 
@@ -4503,9 +4534,22 @@
       </div>
       <div class="pricing-grid-4" style="margin-top:0;">
         <div class="pricing-card">
+          <div class="pricing-tier-icon">⚙️</div>
+          <div class="pricing-label">Pay As You Go</div>
+          <div class="pricing-price">$10</div>
+          <div class="pricing-period">per agent / month</div>
+          <div class="pricing-features">
+            <div class="pricing-feature"><span class="pricing-check">✓</span> Unlimited agents</div>
+            <div class="pricing-feature"><span class="pricing-check">✓</span> Pay per active agent</div>
+            <div class="pricing-feature"><span class="pricing-check">✓</span> All core features</div>
+            <div class="pricing-feature"><span class="pricing-check">✓</span> BYOK included</div>
+            <div class="pricing-feature"><span class="pricing-check">✓</span> Cancel anytime</div>
+          </div><button class="pricing-btn" style="background:var(--dark);">Join waitlist →</button>
+        </div>
+        <div class="pricing-card">
           <div class="pricing-tier-icon">🧱</div>
           <div class="pricing-label">Starter</div>
-          <div class="pricing-price">$19</div>
+          <div class="pricing-price" data-annual="$19" data-monthly="$24">$19</div>
           <div class="pricing-period">per month</div>
           <div class="pricing-features">
             <div class="pricing-feature"><span class="pricing-check">✓</span> 5 agents</div>
@@ -4520,7 +4564,7 @@
           <div class="pricing-badge">Most popular</div>
           <div class="pricing-tier-icon">🚀</div>
           <div class="pricing-label">Growth</div>
-          <div class="pricing-price">$49</div>
+          <div class="pricing-price" data-annual="$49" data-monthly="$69">$49</div>
           <div class="pricing-period">per month</div>
           <div class="pricing-features">
             <div class="pricing-feature"><span class="pricing-check">✓</span> 20 agents</div>
@@ -4535,7 +4579,7 @@
         <div class="pricing-card">
           <div class="pricing-tier-icon">🏢</div>
           <div class="pricing-label">Scale</div>
-          <div class="pricing-price">$129</div>
+          <div class="pricing-price" data-annual="$129" data-monthly="$159">$129</div>
           <div class="pricing-period">per month</div>
           <div class="pricing-features">
             <div class="pricing-feature"><span class="pricing-check">✓</span> 75 agents</div>
@@ -5381,7 +5425,32 @@
         btn.closest('.sp-wb-form')?.querySelector('input')?.addEventListener('keydown', e => { if (e.key === 'Enter') btn.click(); });
       });
     }
-    ['features', 'how', 'pricing', 'about', 'contact'].forEach(p => handlannist('sp-wbl-' + p, 'sp-wbl-btn-' + p));
+    // ══════════════════════════════════════════════
+    // PRICING TOGGLE LOGIC
+    // ══════════════════════════════════════════════
+    const pricingToggles = document.querySelectorAll('.pc-toggle-btn');
+    pricingToggles.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const isAnnual = btn.textContent.trim() === 'Annual';
+        const mode = isAnnual ? 'annual' : 'monthly';
+
+        // Update all toggle buttons state
+        pricingToggles.forEach(b => {
+          if (b.textContent.trim() === (isAnnual ? 'Annual' : 'Monthly')) {
+            b.classList.add('active');
+          } else {
+            b.classList.remove('active');
+          }
+        });
+
+        // Update all price elements
+        document.querySelectorAll('[data-annual]').forEach(el => {
+          el.textContent = el.getAttribute('data-' + mode);
+        });
+      });
+    });
+
+    ['features', 'how', 'pricing', 'about', 'contact'].forEach(p => handleBannerWaitlist('sp-wbl-' + p, 'sp-wbl-btn-' + p));
     document.querySelectorAll('.sp-doc-link-card[data-page]').forEach(c => c.addEventListener('click', () => openPage(c.dataset.page)));
   </script>
 </body>
