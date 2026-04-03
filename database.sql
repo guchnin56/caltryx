@@ -1,8 +1,8 @@
--- Drop the entire table (and all its rows/policies) if it exists to start completely fresh
-DROP TABLE IF EXISTS public.waitlist CASCADE;
+-- 0. Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Create the new table from scratch with everything required
-CREATE TABLE public.waitlist (
+-- 1. Create the table
+CREATE TABLE IF NOT EXISTS public.waitlist (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     email TEXT UNIQUE NOT NULL,
     waitlist_position SERIAL,

@@ -93,9 +93,11 @@ function initSurvey() {
       
       if (error) {
         console.error('Supabase error:', error);
+        alert(`Database Error: ${error.message}. Please make sure you have run the database.sql setup in your Supabase dashboard.`);
       }
     } catch (err) {
       console.error('Critical error during insert:', err);
+      alert('Critical Connection Error. Please check your internet or Supabase project status.');
     }
     
     // Redirect even if error (likely duplicate) to show position
