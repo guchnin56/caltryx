@@ -93,7 +93,14 @@ function initSurvey() {
       
       if (error) {
         console.error('Supabase error:', error);
-        alert(`Database Error: ${error.message}. Please make sure you have run the database.sql setup in your Supabase dashboard.`);
+        // Robust check for duplicate email
+        const isDuplicate = error.code === '23505' || 
+                            error.message?.toLowerCase().includes('duplicate') ||
+                            error.message?.toLowerCase().includes('already exists');
+                            
+        if (!isDuplicate) {
+          alert(`Database Error: ${error.message}. Please make sure you have run the database.sql setup in your Supabase dashboard.`);
+        }
       }
     } catch (err) {
       console.error('Critical error during insert:', err);
