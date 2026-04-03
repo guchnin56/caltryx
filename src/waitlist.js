@@ -1,11 +1,5 @@
-// 1. Initialize Supabase using the global CDN script
-// Vite environment variables are still used for the URL and Key
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-// Use the global 'supabase' object from the script tag in index.html
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-window.supabaseClient = supabase; 
+import { supabase } from './supabase.js';
+window.supabaseClient = supabase;
 
 // 2. Waitlist Counter Logic
 async function updateCount() {
