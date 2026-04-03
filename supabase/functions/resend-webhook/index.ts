@@ -80,11 +80,13 @@ serve(async (req) => {
     });
 
     const data = await res.json();
+    console.log("Resend API Response Status:", res.status);
+    console.log("Resend API Response Data:", JSON.stringify(data, null, 2));
 
     if (res.ok) {
       return new Response(JSON.stringify({ success: true, data }), { status: 200, headers: { 'Content-Type': 'application/json' } });
     } else {
-      console.error("Resend API Error:", data);
+      console.error("Resend API Error Detail:", JSON.stringify(data, null, 2));
       return new Response(JSON.stringify({ error: data }), { status: 400, headers: { 'Content-Type': 'application/json' } });
     }
 
