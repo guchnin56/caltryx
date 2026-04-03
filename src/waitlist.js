@@ -1,10 +1,11 @@
-import { createClient } from '@supabase/supabase-js';
-
-// 1. Initialize Supabase
+// 1. Initialize Supabase using the global CDN script
+// Vite environment variables are still used for the URL and Key
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
-window.supabaseClient = supabase; // Export for other scripts if needed
+
+// Use the global 'supabase' object from the script tag in index.html
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+window.supabaseClient = supabase; 
 
 // 2. Waitlist Counter Logic
 async function updateCount() {
@@ -27,7 +28,7 @@ async function updateCount() {
         }
       }, 30);
     } else {
-      display.textContent = '127'; // Fallback social proof
+      display.textContent = '127';
     }
   } catch(e) {
     display.textContent = '127';
@@ -53,7 +54,6 @@ function initWaitlist() {
         setTimeout(() => input.style.outline = '', 1500);
         return;
       }
-      // Open survey modal
       const modal = document.getElementById('survey-modal-overlay');
       if (modal) {
         modal.style.display = 'flex';
@@ -62,33 +62,6 @@ function initWaitlist() {
     });
 
     input.addEventListener('keydown', e => { if (e.key === 'Enter') btn.click(); });
-  });
-
-  // Banner Waitlists in subpages
-  document.querySelectorAll('.sp-wb-form button').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const input = btn.closest('.sp-wb-form')?.querySelector('input');
-      if (!input) return;
-      const email = input.value.trim();
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        input.style.outline = '2px solid #EF4444';
-        setTimeout(() => input.style.outline = '', 1500);
-        return;
-      }
-      
-      btn.textContent = '...';
-      const { error } = await supabase.from('waitlist').insert([{ email }]);
-      if (!error) {
-        input.value = '';
-        input.placeholder = email;
-        input.disabled = true;
-        btn.textContent = "✓ You're in!";
-        btn.disabled = true;
-      } else {
-        btn.textContent = 'Try again';
-        console.error(error);
-      }
-    });
   });
 }
 
@@ -117,11 +90,19 @@ function initSurvey() {
     surveyBtn.textContent = 'Securing spot...';
     const email = window.pendingSurveyEmail;
     
-    const { error } = await supabase.from('waitlist').insert([{ 
-      email: email,
-      platform: platform,
-      key_feature: feature
-    }]);
+    try {
+      const { error } = await supabase.from('waitlist').insert([{ 
+        email: email,
+        platform: platform,
+        key_feature: feature
+      }]);
+      
+      if (error) {
+        console.error('Supabase error:', error);
+      }
+    } catch (err) {
+      console.error('Critical error during insert:', err);
+    }
     
     // Redirect even if error (likely duplicate) to show position
     window.location.href = `/waitlist.html?email=${encodeURIComponent(email)}`;
@@ -129,8 +110,19 @@ function initSurvey() {
 }
 
 // Run everything on load
-document.addEventListener('DOMContentLoaded', () => {
-  updateCount();
-  initWaitlist();
-  initSurvey();
-});
+function bootstrap() {
+  if (typeof window.supabase !== 'undefined') {
+    updateCount();
+    initWaitlist();
+    initSurvey();
+  } else {
+    // Retry if CDN script not yet loaded
+    setTimeout(bootstrap, 100);
+  }
+}
+
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  bootstrap();
+} else {
+  document.addEventListener('DOMContentLoaded', bootstrap);
+}
