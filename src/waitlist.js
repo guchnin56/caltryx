@@ -115,6 +115,16 @@ function bootstrap() {
     updateCount();
     initWaitlist();
     initSurvey();
+
+    // Enable Realtime updates for the counter
+    supabase
+      .channel('waitlist-realtime')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'waitlist' }, (payload) => {
+        console.log('New signup detected! Updating counter...', payload);
+        updateCount();
+      })
+      .subscribe();
+      
   } else {
     // Retry if CDN script not yet loaded
     setTimeout(bootstrap, 100);
