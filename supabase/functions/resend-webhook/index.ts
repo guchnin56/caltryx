@@ -72,8 +72,10 @@ serve(async (req) => {
       body: JSON.stringify({
         from: 'Caltryx <welcome@caltryx.xyz>', 
         to: email, 
+        reply_to: 'welcome@caltryx.xyz',
         subject: `Your Caltryx Spot: #${position} 🎉`,
-        html: html
+        html: html,
+        text: `Welcome to Caltryx! Your spot is secured at #${position}. We're building the ultimate AI observability infrastructure. View priority access here: https://caltryx.xyz/waitlist?email=${encodeURIComponent(email)}`
       })
     });
 
