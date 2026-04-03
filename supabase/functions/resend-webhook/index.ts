@@ -53,7 +53,7 @@ serve(async (req) => {
             </div>
             
             <p style="color: #6B6560; font-size: 15px; line-height: 1.6;">Want to skip the queue? Check out our priority early access plans to get instant beta access.</p>
-            <a href="https://caltryx.com/waitlist?email=${encodeURIComponent(email)}" class="btn">View Priority Access →</a>
+            <a href="https://caltryx.xyz/waitlist?email=${encodeURIComponent(email)}" class="btn">View Priority Access →</a>
           </div>
           <div class="footer">
             &copy; 2026 Caltryx. The ultimate AI observability infrastructure.
@@ -70,7 +70,7 @@ serve(async (req) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'Caltryx <onboarding@resend.dev>', 
+        from: 'Caltryx <welcome@caltryx.xyz>', 
         to: email, 
         subject: `Your Caltryx Spot: #${position} 🎉`,
         html: html
