@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -3785,7 +3785,7 @@
       <li><a href="#pricing">Pricing</a></li>
     </ul>
     <div class="nav-actions">
-      <a href="#hero" class="btn-pill btn-pill-accent">Join Waitlist <span class="arrow">→</span></a>
+      <a href="#hero" class="btn-pill btn-pill-accent">Get Early Access <span class="arrow">→</span></a>
     </div>
   </nav>
 
@@ -3802,8 +3802,9 @@
 
     <div class="hero-input-wrap">
       <input class="hero-input" type="email" id="waitlist-input" placeholder="Enter your email address" />
-      <button class="hero-input-btn" id="waitlist-btn">Join the Waitlist →</button>
+      <button class="hero-input-btn" id="waitlist-btn">Get Early Access →</button>
     </div>
+    <div style="font-size: 15px; font-weight: 500; margin-top: 16px; color: var(--accent);">Join <span id="waitlist-count-display">...</span> developers already on the waitlist</div>
     <div class="hero-sub-note" id="waitlist-note">Be first to know when we launch · No spam · Ever</div>
 
     <div class="hero-3d-wrap" id="hero3d">
@@ -4200,7 +4201,7 @@
           <div class="pc-payg-feat"><span>✓</span> No minimum spend</div>
           <div class="pc-payg-feat"><span>✓</span> Cancel anytime</div>
         </div>
-        <button class="pc-payg-cta">Join Waitlist →</button>
+        <button class="pc-payg-cta">Get Early Access →</button>
       </div>
     </div>
 
@@ -4249,7 +4250,7 @@
             <div class="pc-feat-icon">✕</div>Advanced analytics
           </div>
         </div>
-        <button class="pc-cta pc-cta-light">Join Waitlist →</button>
+        <button class="pc-cta pc-cta-light">Get Early Access →</button>
       </div>
 
       <!-- CENTER: Growth (featured) -->
@@ -4297,7 +4298,7 @@
             <div class="pc-feat-icon">✕</div>Multi-user workspace
           </div>
         </div>
-        <button class="pc-cta pc-cta-dark">Join Waitlist →</button>
+        <button class="pc-cta pc-cta-dark">Get Early Access →</button>
       </div>
 
       <!-- RIGHT: Scale -->
@@ -4342,7 +4343,7 @@
             <div class="pc-feat-icon">✕</div>Dedicated infrastructure
           </div>
         </div>
-        <button class="pc-cta pc-cta-light">Join Waitlist →</button>
+        <button class="pc-cta pc-cta-light">Get Early Access →</button>
       </div>
 
     </div>
@@ -4481,10 +4482,10 @@
     </div>
     <div class="final-cta reveal">
       <h2>Stop guessing.<br>Start <em>knowing.</em></h2>
-      <p>Join the waitlist. Be first when Caltryx launches — and help shape exactly what we build.</p>
+      <p>Get early access. Be first when Caltryx launches — and help shape exactly what we build.</p>
       <div class="final-input-wrap" id="final-waitlist-wrap">
         <input class="final-input" id="final-waitlist-input" type="email" placeholder="Enter your email address" />
-        <button class="hero-input-btn" id="final-waitlist-btn">Join Waitlist →</button>
+        <button class="hero-input-btn" id="final-waitlist-btn">Get Early Access →</button>
       </div>
       <div style="margin-top:16px;font-size:13px;color:var(--muted);" id="final-waitlist-note">Be first to know when we
         launch · No spam · Ever</div>
@@ -4511,7 +4512,6 @@
         <div class="footer-col-title">Resources</div>
         <div class="footer-links">
           <a href="#" data-page="docs">Documentation</a>
-          <a href="#" data-page="blog">Blog</a>
           <a href="#" data-page="changelog">Changelog</a>
           <a href="#" data-page="security">Security</a>
         </div>
@@ -4532,6 +4532,53 @@
       <div class="footer-legal">not affiliated to openai or anthropic.</div>
     </div>
   </footer>
+
+  <!-- SURVEY MODAL -->
+  <div id="survey-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(28,28,28,0.8);z-index:9999;backdrop-filter:blur(10px);align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:24px;padding:40px;width:100%;max-width:500px;position:relative;box-shadow:0 30px 80px rgba(0,0,0,0.2);">
+      <h3 style="font-family:var(--serif);font-size:28px;margin-bottom:8px;">Just two quick questions</h3>
+      <p style="color:var(--muted);font-size:15px;margin-bottom:32px;">Help us shape Caltryx for you.</p>
+
+      <div style="margin-bottom:24px;">
+        <label style="display:block;font-size:14px;font-weight:600;margin-bottom:12px;">Which platform do you mainly use?</label>
+        <select id="survey-platform" style="width:100%;padding:14px;border-radius:12px;border:1px solid var(--border);font-family:var(--sans);font-size:15px;background:var(--cream);outline:none;">
+          <option value="" disabled selected>Select a platform...</option>
+          <option value="X (Twitter)">X (Twitter)</option>
+          <option value="Instagram">Instagram</option>
+          <option value="LinkedIn">LinkedIn</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom:32px;">
+        <label style="display:block;font-size:14px;font-weight:600;margin-bottom:12px;">What key feature are you most interested in?</label>
+        <select id="survey-feature" style="width:100%;padding:14px;border-radius:12px;border:1px solid var(--border);font-family:var(--sans);font-size:15px;background:var(--cream);outline:none;">
+          <option value="" disabled selected>Select a feature...</option>
+          <option value="Cost tracking">Cost tracking</option>
+          <option value="Budget alerts">Budget alerts</option>
+          <option value="Cost attribution per agent/workflow">Cost attribution per agent/workflow</option>
+          <option value="Analytics dashboard">Analytics dashboard</option>
+          <option value="Other">Other</option>
+        </select>
+        <input type="text" id="survey-feature-other" placeholder="Please specify..." style="display:none;width:100%;padding:14px;border-radius:12px;border:1px solid var(--border);margin-top:12px;font-family:var(--sans);font-size:15px;background:var(--cream);outline:none;" />
+      </div>
+
+      <button id="survey-submit-btn" style="width:100%;background:var(--accent);color:#fff;border:none;padding:16px;border-radius:100px;font-family:var(--sans);font-size:15px;font-weight:600;cursor:pointer;transition:all 0.2s;">Submit & Get My Spot →</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from '@supabase/supabase-js';
+    window.supabaseClient = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY);
+    
+    async function updateCount() {
+      try {
+        const { count, error } = await window.supabaseClient.from('waitlist').select('*', { count: 'exact', head: true });
+        if(count !== null) document.getElementById('waitlist-count-display').textContent = count;
+      } catch(e) {}
+    }
+    updateCount();
+  </script>
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!-- SUB-PAGES (hidden by default, shown via SPA router)        -->
@@ -4610,10 +4657,10 @@
         </div>
       </div>
       <div class="sp-waitlist-banner">
-        <div class="sp-wb-text"><strong>Caltryx is launching soon.</strong> Join the waitlist — be first to access all 9
+        <div class="sp-wb-text"><strong>Caltryx is launching soon.</strong> Get early access — be first to access all 9
           systems.</div>
         <div class="sp-wb-form"><input type="email" class="sp-wb-input sp-wbl-features"
-            placeholder="your@email.com" /><button class="sp-wb-btn sp-wbl-btn-features">Join Waitlist →</button></div>
+            placeholder="your@email.com" /><button class="sp-wb-btn sp-wbl-btn-features">Get Early Access →</button></div>
       </div>
     </div>
 
@@ -4664,10 +4711,10 @@
         </div>
       </div>
       <div class="sp-waitlist-banner">
-        <div class="sp-wb-text"><strong>Ready to integrate?</strong> Join the waitlist and be first when the SDK ships.
+        <div class="sp-wb-text"><strong>Ready to integrate?</strong> Get early access and be first when the SDK ships.
         </div>
         <div class="sp-wb-form"><input type="email" class="sp-wb-input sp-wbl-how"
-            placeholder="your@email.com" /><button class="sp-wb-btn sp-wbl-btn-how">Join Waitlist →</button></div>
+            placeholder="your@email.com" /><button class="sp-wb-btn sp-wbl-btn-how">Get Early Access →</button></div>
       </div>
     </div>
 
@@ -4714,7 +4761,7 @@
             <div class="pricing-feature"><span class="pricing-check">✓</span> Budget alerts</div>
             <div class="pricing-feature"><span class="pricing-check">✓</span> Basic analytics</div>
             <div class="pricing-feature"><span class="pricing-check">✓</span> Email notifications + API</div>
-          </div><button class="pricing-btn" style="background:var(--dark);">Join waitlist →</button>
+          </div><button class="pricing-btn" style="background:var(--dark);">Get early access →</button>
         </div>
         <div class="pricing-card featured">
           <div class="pricing-badge">Most popular</div>
@@ -4730,7 +4777,7 @@
             <div class="pricing-feature"><span class="pricing-check">✓</span> Webhooks + CSV export</div>
             <div class="pricing-feature"><span class="pricing-check">✓</span> Advanced analytics</div>
             <div class="pricing-feature"><span class="pricing-check">✓</span> Priority email support</div>
-          </div><button class="pricing-btn">Join waitlist →</button>
+          </div><button class="pricing-btn">Get early access →</button>
         </div>
         <div class="pricing-card">
           <div class="pricing-tier-icon">🏢</div>
@@ -4744,7 +4791,7 @@
             <div class="pricing-feature"><span class="pricing-check">✓</span> Role-based permissions</div>
             <div class="pricing-feature"><span class="pricing-check">✓</span> Custom alert rules</div>
             <div class="pricing-feature"><span class="pricing-check">✓</span> Everything in Growth</div>
-          </div><button class="pricing-btn" style="background:var(--dark);">Join waitlist →</button>
+          </div><button class="pricing-btn" style="background:var(--dark);">Get early access →</button>
         </div>
         <div class="pricing-card pricing-enterprise">
           <div class="pricing-tier-icon">🏛</div>
@@ -4764,10 +4811,10 @@
       <p style="text-align:center;margin-top:28px;font-size:13px;color:var(--muted);">All plans include BYOK · No hidden
         fees · Cancel anytime</p>
       <div class="sp-waitlist-banner">
-        <div class="sp-wb-text"><strong>Pricing locked in for early members.</strong> Join the waitlist before launch.
+        <div class="sp-wb-text"><strong>Pricing locked in for early members.</strong> Get early access before launch.
         </div>
         <div class="sp-wb-form"><input type="email" class="sp-wb-input sp-wbl-pricing"
-            placeholder="your@email.com" /><button class="sp-wb-btn sp-wbl-btn-pricing">Join Waitlist →</button></div>
+            placeholder="your@email.com" /><button class="sp-wb-btn sp-wbl-btn-pricing">Get Early Access →</button></div>
       </div>
     </div>
 
@@ -4856,8 +4903,8 @@
       </div>
     </div>
 
-    <!-- PAGE: BLOG -->
-    <div class="subpage" id="page-blog">
+    <!-- PAGE: BLOG (HIDDEN) -->
+    <div class="subpage" id="page-blog" style="display: none;">
       <canvas class="sp-canvas" id="sp-canvas-blog"></canvas>
       <div class="sp-hero">
         <div class="section-tag">Blog</div>
@@ -4908,7 +4955,7 @@
           <div class="sp-cl-body">
             <div class="sp-cl-badge sp-cl-new">New</div>
             <h3>Waitlist launched</h3>
-            <p>Caltryx is officially in pre-launch. Join the waitlist to be first when we open access. Early waitlist
+            <p>Caltryx is officially in pre-launch. Get early access to be first when we open access. Early waitlist
               members get 3 months of Growth free.</p>
           </div>
         </div>
@@ -4996,7 +5043,7 @@
             multi-model, and increasingly expensive if you're not watching it closely.</p>
           <p>We believe every indie hacker, solo founder, and small AI startup deserves the same cost visibility and
             guardrail tools that enterprise companies build internally. That's what we're building.</p>
-          <p style="margin-top:32px;"><strong>Caltryx is currently in pre-launch.</strong> Join the waitlist — early
+          <p style="margin-top:32px;"><strong>Caltryx is currently in pre-launch.</strong> Get early access — early
             members help shape what we prioritise.</p>
         </div>
         <div class="sp-about-values">
@@ -5021,7 +5068,7 @@
         <div class="sp-wb-text"><strong>Join us from day one.</strong> Early waitlist members get 3 months of Growth
           free.</div>
         <div class="sp-wb-form"><input type="email" class="sp-wb-input sp-wbl-about"
-            placeholder="your@email.com" /><button class="sp-wb-btn sp-wbl-btn-about">Join Waitlist →</button></div>
+            placeholder="your@email.com" /><button class="sp-wb-btn sp-wbl-btn-about">Get Early Access →</button></div>
       </div>
     </div>
 
@@ -5067,10 +5114,10 @@
         </div>
       </div>
       <div class="sp-waitlist-banner">
-        <div class="sp-wb-text"><strong>Caltryx is launching soon.</strong> Join the waitlist — be first in the door.
+        <div class="sp-wb-text"><strong>Caltryx is launching soon.</strong> Get early access — be first in the door.
         </div>
         <div class="sp-wb-form"><input type="email" class="sp-wb-input sp-wbl-contact"
-            placeholder="your@email.com" /><button class="sp-wb-btn sp-wbl-btn-contact">Join Waitlist →</button></div>
+            placeholder="your@email.com" /><button class="sp-wb-btn sp-wbl-btn-contact">Get Early Access →</button></div>
       </div>
     </div>
 
@@ -5398,7 +5445,7 @@
       const btn = document.getElementById(btnId);
       const note = document.getElementById(noteId);
       if (!input || !btn) return;
-      btn.addEventListener('click', async () => {
+      btn.addEventListener('click', () => {
         const email = input.value.trim();
         const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
         if (!valid) {
@@ -5407,33 +5454,52 @@
           return;
         }
 
-        if (supabase) {
-          btn.textContent = "Joining...";
-          const { error } = await supabase.from('waitlist').insert([{ email }]);
-          if (error) {
-            console.error("Supabase Error:", error);
-            if (note) { note.textContent = "Error joining waitlist. Please try again."; note.style.color = '#EF4444'; }
-            return;
-          }
-        } else {
-          // Fallback to localStorage if Supabase isn't configured
-          const list = JSON.parse(localStorage.getItem('Caltryx_waitlist') || '[]');
-          if (!list.includes(email)) list.push(email);
-          localStorage.setItem('Caltryx_waitlist', JSON.stringify(list));
-        }
-
-        input.value = '';
-        input.placeholder = email;
-        input.disabled = true;
-        btn.textContent = "✓ You're on the list!";
-        btn.style.background = '#10B981';
-        btn.disabled = true;
-        if (note) { note.textContent = "We'll be in touch soon. Thank you!"; note.style.color = '#10B981'; }
+        // Open survey modal
+        document.getElementById('survey-modal-overlay').style.display = 'flex';
+        window.pendingSurveyEmail = email;
       });
       input.addEventListener('keydown', e => { if (e.key === 'Enter') btn.click(); });
     }
     handleWaitlist('waitlist-input', 'waitlist-btn', 'waitlist-note');
     handleWaitlist('final-waitlist-input', 'final-waitlist-btn', 'final-waitlist-note');
+
+    // Survey Logic
+    const platSelect = document.getElementById('survey-platform');
+    const featSelect = document.getElementById('survey-feature');
+    const featOther = document.getElementById('survey-feature-other');
+    const surveyBtn = document.getElementById('survey-submit-btn');
+
+    featSelect.addEventListener('change', () => {
+      featOther.style.display = featSelect.value === 'Other' ? 'block' : 'none';
+    });
+
+    surveyBtn.addEventListener('click', async () => {
+      const platform = platSelect.value;
+      const feature = featSelect.value === 'Other' ? featOther.value : featSelect.value;
+      
+      if (!platform || !feature) {
+        alert('Please answer both questions to secure your spot.');
+        return;
+      }
+      
+      surveyBtn.textContent = 'Securing spot...';
+      const email = window.pendingSurveyEmail;
+      
+      if (window.supabaseClient) {
+        const { error } = await window.supabaseClient.from('waitlist').insert([{ 
+          email: email,
+          platform: platform,
+          key_feature: feature
+        }]);
+        
+        if (error) {
+          console.error(error);
+          // If inserting fails (e.g. duplicate email), we still redirect to get their position
+        }
+      }
+      
+      window.location.href = `/waitlist.html?email=${encodeURIComponent(email)}`;
+    });
 
     // ══════════════════════════════════════════════
     // SPA ROUTER — with animated transitions

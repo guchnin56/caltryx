@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Waitlist Status | Caltryx</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream: #F5F2ED; --cream-dark: #EDE9E2; --dark: #1C1C1C;
+      --muted: #6B6560; --accent: #2D5BE3; --border: rgba(28,28,28,0.12);
+      --serif: 'Playfair Display', Georgia, serif;
+      --sans: 'DM Sans', sans-serif;
+    }
+    body {
+      font-family: var(--sans);
+      background: var(--cream);
+      color: var(--dark);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 80px 20px;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container {
+      max-width: 800px;
+      width: 100%;
+      text-align: center;
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(45, 91, 227, 0.1);
+      color: var(--accent);
+      border-radius: 100px;
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+    h1 {
+      font-family: var(--serif);
+      font-size: 48px;
+      font-weight: 500;
+      margin-bottom: 12px;
+      letter-spacing: -1px;
+    }
+    .urgency {
+      color: #E85C5C;
+      font-weight: 600;
+      font-size: 16px;
+      margin-bottom: 48px;
+    }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 40px; }
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 32px;
+      text-align: left;
+      position: relative;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+    }
+    .card.pro {
+      background: var(--dark);
+      color: #fff;
+    }
+    .card.pro:hover {
+      box-shadow: 0 20px 60px rgba(28,28,28,0.2);
+    }
+    .price { font-family: var(--serif); font-size: 42px; margin-bottom: 20px; }
+    .features { list-style: none; margin-bottom: 32px; }
+    .features li { font-size: 14px; margin-bottom: 12px; display: flex; align-items: flex-start; gap: 8px; color: var(--muted); }
+    .card.pro .features li { color: rgba(255,255,255,0.7); }
+    .features li::before { content: "✓"; color: #10B981; font-weight: bold; }
+    .btn {
+      display: block; width: 100%; text-align: center; background: var(--accent); color: #fff;
+      text-decoration: none; padding: 14px; border-radius: 100px; font-weight: 600; font-size: 15px; border: none; cursor: pointer;
+      font-family: var(--sans); transition: all 0.2s;
+    }
+    .btn:hover { background: #3D6BF3; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(45,91,227,0.3); }
+    .card.pro .btn { background: #fff; color: var(--dark); }
+    .card.pro .btn:hover { background: #f0f0f0; box-shadow: 0 8px 24px rgba(255,255,255,0.2); }
+    
+    @media (max-width: 768px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="badge">Waitlist Confirmed</div>
+    <h1 id="position-heading">Securing your spot...</h1>
+    <p class="urgency">🔥 Only the first 10 users will get early access.</p>
+    
+    <div style="font-size: 22px; font-weight: 600; margin-top: 60px; font-family: var(--serif); letter-spacing: -0.5px;">Skip the Queue – Get Instant Early Access</div>
+    <div class="grid">
+      <!-- Plan 1 -->
+      <div class="card">
+        <h3 style="font-size: 18px; margin-bottom: 8px; font-weight: 600;">Standard Early Access</h3>
+        <div class="price">$49</div>
+        <ul class="features">
+          <li>Early access immediately</li>
+          <li>Beta access</li>
+          <li>1 month free after launch</li>
+          <li>Special discounts after launch</li>
+        </ul>
+        <button class="btn" onclick="checkout('standard', event)">Get Instant Access</button>
+      </div>
+
+      <!-- Plan 2 -->
+      <div class="card pro">
+        <h3 style="font-size: 18px; margin-bottom: 8px; font-weight: 600;">VIP Lifetime</h3>
+        <div class="price">$149</div>
+        <ul class="features">
+          <li>Early access immediately</li>
+          <li>Beta access</li>
+          <li>1 month free after launch</li>
+          <li>3 months at 50% discount</li>
+          <li>Special discounts</li>
+          <li>Lifetime deal: Track 2 agents</li>
+          <li>Lifetime deal: Unlimited tokens</li>
+          <li>Lifetime access</li>
+        </ul>
+        <button class="btn" onclick="checkout('vip', event)">Get Lifetime VIP</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from '@supabase/supabase-js';
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const email = urlParams.get('email');
+    
+    if (email) {
+      async function loadPosition() {
+        // Wait briefly for the insert to fulfill on the previous page if there's any replication delay
+        await new Promise(r => setTimeout(r, 500));
+        const { data, error } = await supabase.from('waitlist').select('waitlist_position').eq('email', email).single();
+        if (data) {
+          document.getElementById('position-heading').innerHTML = `You're <em>#${data.waitlist_position}</em> on the waitlist`;
+        } else {
+          document.getElementById('position-heading').textContent = `You are on the waitlist 🎉`;
+        }
+      }
+      loadPosition();
+    } else {
+      document.getElementById('position-heading').textContent = `You are on the waitlist 🎉`;
+    }
+    
+    // Mock DodoPayments Checkout Flow
+    window.checkout = async (plan, event) => {
+      const btn = event.target;
+      const originalText = btn.textContent;
+      btn.textContent = 'Processing...';
+      
+      // In a real integration with DodoPayments, you would redirect the user to a DodoPayment link:
+      // window.location.href = `https://checkout.dodopayments.com/buy/product_id?email=${encodeURIComponent(email)}`;
+      // Then listen for Webhooks on the server side to update Supabase.
+      
+      // Below is the mocked success for the UI logic
+      setTimeout(async () => {
+        if (email) {
+          const { error } = await supabase.from('waitlist').update({
+            payment_status: 'paid',
+            plan_selected: plan,
+            is_priority: true
+          }).eq('email', email);
+          
+          if (!error) {
+            btn.textContent = 'Success! Check your email.';
+            btn.style.background = '#10B981';
+            btn.style.color = '#fff';
+            return;
+          }
+        }
+        btn.textContent = originalText;
+        alert('Payment mock completed. Could not sync with DB because email was not found or DB error.');
+      }, 1000);
+    };
+  </script>
+</body>
+</html>
