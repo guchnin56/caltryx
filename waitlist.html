@@ -180,7 +180,47 @@
     
     const urlParams = new URLSearchParams(window.location.search);
     const email = urlParams.get('email');
+    const status = urlParams.get('status');
+    const plan = urlParams.get('plan');
     
+    // Success State Handler
+    if (status === 'success' || status === 'succeeded') {
+      const urgencySection = document.querySelector('.urgency-card');
+      const badge = document.querySelector('.badge');
+      const title = document.querySelector('h1');
+      
+      if (urgencySection) {
+        // Transform the page into a success dashboard
+        badge.textContent = "Payment Verified";
+        badge.style.background = "rgba(16, 185, 129, 0.1)";
+        badge.style.color = "#059669";
+        
+        title.textContent = "Welcome to the Inner Circle.";
+        
+        const planName = plan === 'vip' ? 'Lifetime VIP Access' : 'Early Bird Priority';
+        
+        urgencySection.innerHTML = `
+          <div style="text-align: center; padding: 60px 20px; background: #fff; border-radius: 32px; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 20px 60px rgba(0,0,0,0.05);">
+            <div style="font-size: 64px; margin-bottom: 24px;">🎉</div>
+            <h2 style="font-family: serif; font-size: 32px; margin-bottom: 16px;">Congratulations!</h2>
+            <p style="font-size: 18px; color: #6B6560; margin-bottom: 32px; line-height: 1.6;">
+              You've successfully secured <strong>${planName}</strong>.<br>
+              Your account has been upgraded to priority status.
+            </p>
+            <div style="background: var(--cream); padding: 24px; border-radius: 20px; display: inline-block; margin-bottom: 32px; text-align: left;">
+              <p style="font-weight: 600; margin-bottom: 8px; color: var(--dark);">What's next?</p>
+              <ul style="list-style: none; padding: 0; font-size: 14px; color: var(--muted);">
+                <li style="margin-bottom: 8px;">✅ Check your email for your receipt and beta details.</li>
+                <li style="margin-bottom: 8px;">✅ You will be among the first to receive the invite link.</li>
+                <li>✅ Priority support has been activated for ${email}.</li>
+              </ul>
+            </div>
+            <p style="font-family: serif; font-style: italic; font-size: 20px; color: var(--accent);">Stay tuned to your mail. Beta opening soon.</p>
+          </div>
+        `;
+      }
+    }
+
     if (email) {
       async function loadStatus() {
         const numDisplay = document.getElementById('pos-num');
