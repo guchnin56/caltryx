@@ -31,12 +31,12 @@ serve(async (req) => {
     console.log(`Using Product ID: ${productId}`);
 
     if (!DODO_PAYMENTS_KEY) {
-      console.error("DODO_PAYMENTS_KEY is not set in Environment Variables");
-      throw new Error("Payment server configuration error (key missing)");
+      console.error("DODO_PAYMENTS_KEY missing");
+      throw new Error("Server config error (key missing)");
     }
 
-    // Create Dodo Payments Checkout Session
-    const res = await fetch('https://api.dodopayments.com/v1/checkout-sessions', {
+    // Correct V1 Dodo Payment checkout session endpoint
+    const res = await fetch('https://api.dodopayments.com/v1/checkouts', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${DODO_PAYMENTS_KEY}`,
@@ -52,6 +52,7 @@ serve(async (req) => {
 
     const data = await res.json();
     console.log("Dodo API Response Status:", res.status);
+    console.log("Dodo API Response Full:", JSON.stringify(data));
 
     if (res.ok) {
       return new Response(JSON.stringify({ checkout_url: data.checkout_url }), { 
@@ -59,8 +60,10 @@ serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       });
     } else {
-      console.error("Dodo API Error:", JSON.stringify(data));
-      return new Response(JSON.stringify({ error: data }), { 
+      console.error("Dodo API Error Rejection:", JSON.stringify(data));
+      // Return the inner error message from Dodo if it exists
+      const errorMessage = data.message || data.error?.message || JSON.stringify(data);
+      return new Response(JSON.stringify({ error: errorMessage }), { 
         status: 400, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       });

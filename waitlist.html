@@ -140,34 +140,36 @@
       <span class="position-label">Your Current Position</span>
     </div>
 
-    <div class="urgency-card">
-      <h3 class="urgency-title">Skip the queue?</h3>
-      <p class="urgency-text">We are onboarding users in small batches. Get first early access by selecting one of our priority plans below.</p>
+    <div class="urgency-card" style="margin-top: 60px; background: transparent; border: none; padding: 0;">
+      <h3 class="urgency-title" style="font-family: serif; font-size: 38px; margin-bottom: 40px;">Choose Your Priority Access</h3>
       
-      <div class="plans-grid">
-        <div class="plan-card" onclick="checkout('standard', event)">
-          <div class="plan-name">Early Bird</div>
-          <div class="plan-price">$49</div>
-          <ul style="list-style:none; margin: 20px 0; padding: 0;">
-            <li style="font-size:13px; margin-bottom:8px; color:var(--muted); display:flex; align-items:center; gap:8px;"><span style="color:#10B981;">✓</span> Early access immediately</li>
-            <li style="font-size:13px; margin-bottom:8px; color:var(--muted); display:flex; align-items:center; gap:8px;"><span style="color:#10B981;">✓</span> Beta access</li>
-            <li style="font-size:13px; margin-bottom:8px; color:var(--muted); display:flex; align-items:center; gap:8px;"><span style="color:#10B981;">✓</span> 1 month free after launch</li>
-            <li style="font-size:13px; margin-bottom:8px; color:var(--muted); display:flex; align-items:center; gap:8px;"><span style="color:#10B981;">✓</span> Special discounts</li>
+      <div class="plans-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; max-width: 900px; margin: 0 auto;">
+        <!-- Early Bird Plan -->
+        <div class="plan-card" onclick="checkout('standard', event)" style="position: relative; background: #FFFFFF; border: 1px solid rgba(0,0,0,0.05); padding: 40px; border-radius: 32px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; text-align: left; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+          <div style="position: absolute; top: 20px; right: 20px; background: #2D5BE3; color: white; padding: 6px 14px; border-radius: 100px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px;">50% OFF (3 MONTHS)</div>
+          <div class="plan-name" style="font-size: 16px; font-weight: 600; color: #6B6560; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">Early Bird</div>
+          <div class="plan-price" style="font-size: 48px; font-weight: 700; color: #1C1C1C; margin-bottom: 24px;">$49</div>
+          <ul style="list-style:none; margin: 0 0 32px 0; padding: 0;">
+            <li style="font-size:14px; margin-bottom:12px; color:#1C1C1C; display:flex; align-items:center; gap:10px;"><span style="color:#2D5BE3; font-weight:bold;">→</span> Early access immediately</li>
+            <li style="font-size:14px; margin-bottom:12px; color:#1C1C1C; display:flex; align-items:center; gap:10px;"><span style="color:#2D5BE3; font-weight:bold;">→</span> Full Beta access</li>
+            <li style="font-size:14px; margin-bottom:12px; color:#1C1C1C; display:flex; align-items:center; gap:10px;"><span style="color:#2D5BE3; font-weight:bold;">→</span> 1 month free after launch</li>
+            <li style="font-size:14px; margin-bottom:0; color:#2D5BE3; font-weight:600; display:flex; align-items:center; gap:10px;"><span style="color:#2D5BE3; font-weight:bold;">→</span> 50% discount for 3 months</li>
           </ul>
-          <button class="btn">Get Started →</button>
-          <p style="font-size:11px; color:#888; margin-top:12px; line-height:1.4;">Instant access to our early beta batches.</p>
+          <button class="btn" style="width: 100%; padding: 18px; border-radius: 100px; font-weight: 600; background: #1C1C1C; color: white; border: none; transition: 0.3s;">Select Plan</button>
         </div>
-        <div class="plan-card featured" onclick="checkout('vip', event)">
-          <div class="plan-name">Lifetime VIP</div>
-          <div class="plan-price">$149</div>
-          <ul style="list-style:none; margin: 20px 0; padding: 0;">
-            <li style="font-size:13px; margin-bottom:8px; color:rgba(255,255,255,0.7); display:flex; align-items:center; gap:8px;"><span style="color:#10B981;">✓</span> everything in birdplan</li>
-            <li style="font-size:13px; margin-bottom:8px; color:rgba(255,255,255,1); font-weight:600; display:flex; align-items:center; gap:8px;"><span style="color:#10B981;">✓</span> 3month 50% off</li>
-            <li style="font-size:13px; margin-bottom:8px; color:rgba(255,255,255,0.7); display:flex; align-items:center; gap:8px;"><span style="color:#10B981;">✓</span> Track 2 agents (Lifetime)</li>
-            <li style="font-size:13px; margin-bottom:8px; color:rgba(255,255,255,0.7); display:flex; align-items:center; gap:8px;"><span style="color:#10B981;">✓</span> Unlimited tokens (Lifetime)</li>
+
+        <!-- Lifetime VIP Plan -->
+        <div class="plan-card featured" onclick="checkout('vip', event)" style="position: relative; background: #1C1C1C; border: 1px solid rgba(255,255,255,0.1); padding: 40px; border-radius: 32px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; text-align: left; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
+          <div style="position: absolute; top: 20px; right: 20px; background: #F5F2ED; color: #1C1C1C; padding: 6px 14px; border-radius: 100px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px;">50% OFF (3 MONTHS)</div>
+          <div class="plan-name" style="font-size: 16px; font-weight: 600; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">Lifetime VIP</div>
+          <div class="plan-price" style="font-size: 48px; font-weight: 700; color: #FFFFFF; margin-bottom: 24px;">$149</div>
+          <ul style="list-style:none; margin: 0 0 32px 0; padding: 0;">
+            <li style="font-size:14px; margin-bottom:12px; color:#FFFFFF; display:flex; align-items:center; gap:10px;"><span style="color:#10B981; font-weight:bold;">✓</span> everything in birdplan</li>
+            <li style="font-size:14px; margin-bottom:12px; color:#FFFFFF; font-weight:600; display:flex; align-items:center; gap:10px;"><span style="color:#10B981; font-weight:bold;">✓</span> 50% discount for 3 months</li>
+            <li style="font-size:14px; margin-bottom:12px; color:rgba(255,255,255,0.7); display:flex; align-items:center; gap:10px;"><span style="color:#10B981; font-weight:bold;">✓</span> Lifetime platform access</li>
+            <li style="font-size:14px; margin-bottom:0; color:rgba(255,255,255,0.7); display:flex; align-items:center; gap:10px;"><span style="color:#10B981; font-weight:bold;">✓</span> Unlimited tokens (Lifetime)</li>
           </ul>
-          <button class="btn">Get Lifetime Access →</button>
-          <p style="font-size:11px; color:rgba(255,255,255,0.4); margin-top:12px; line-height:1.4;">One-time payment for eternal access.</p>
+          <button class="btn" style="width: 100%; padding: 18px; border-radius: 100px; font-weight: 600; background: #FFFFFF; color: #1C1C1C; border: none; transition: 0.3s;">Get Lifetime Access</button>
         </div>
       </div>
     </div>
@@ -218,18 +220,22 @@
 
         if (error) {
            console.error('Supabase function error:', error);
-           throw new Error(error.message || 'Function call failed');
+           // Handle non-JSON errors (like text HTML error pages)
+           if (typeof error.message === 'string') {
+             throw new Error(error.message);
+           }
+           throw new Error('Connection failed. Please check if your Dodo Payments Key is correctly set as a Supabase Secret.');
         }
 
         if (data && data.checkout_url) {
           window.location.href = data.checkout_url;
         } else {
-          console.error('Malformed response:', data);
-          throw new Error('No checkout URL received from server');
+          const detail = data.error || (data.message ? data.message : JSON.stringify(data));
+          throw new Error(detail || 'No checkout link received');
         }
       } catch (err) {
         console.error('Checkout error detail:', err);
-        alert(`Checkout Error: ${err.message}. Please try refreshing the page.`);
+        alert(`Checkout Error: ${err.message}`);
         btn.textContent = originalText;
       }
     };
