@@ -149,13 +149,13 @@
           <div class="plan-name">Early Bird</div>
           <div class="plan-price">$49</div>
           <ul style="list-style:none; margin: 20px 0; padding: 0;">
-            <li style="font-size:13px; margin-bottom:8px; color:var(--muted); display:flex; align-items:center; gap:8px;"><span style="color:#10B981;">✓</span> Early access immediately</li>
+            <li style="font-size:13px; margin-bottom:8px; color:var(--muted); display:flex; align-items:center; gap:8px;"><span style="color:#10B981;">✓</span> everything in early bird plan</li>
+            <li style="font-size:13px; margin-bottom:8px; color:#2D5BE3; display:flex; align-items:center; gap:8px;"><span style="color:#10B981;">✓</span> 50% discount for next 3 months</li>
             <li style="font-size:13px; margin-bottom:8px; color:var(--muted); display:flex; align-items:center; gap:8px;"><span style="color:#10B981;">✓</span> Beta access</li>
             <li style="font-size:13px; margin-bottom:8px; color:var(--muted); display:flex; align-items:center; gap:8px;"><span style="color:#10B981;">✓</span> 1 month free after launch</li>
-            <li style="font-size:13px; margin-bottom:8px; color:var(--muted); display:flex; align-items:center; gap:8px;"><span style="color:#10B981;">✓</span> Special discounts</li>
           </ul>
-          <button class="btn" style="background:#e0e0e0; color:#888; cursor:not-allowed;" disabled>Coming Soon</button>
-          <p style="font-size:11px; color:#888; margin-top:12px; line-height:1.4;">We'll notify you once early access batches open. Stay tuned to your inbox!</p>
+          <button class="btn">Get Started →</button>
+          <p style="font-size:11px; color:#888; margin-top:12px; line-height:1.4;">Instant access to our early beta batches.</p>
         </div>
         <div class="plan-card featured" onclick="checkout('vip', event)">
           <div class="plan-name">Lifetime VIP</div>
@@ -166,8 +166,8 @@
             <li style="font-size:13px; margin-bottom:8px; color:rgba(255,255,255,0.7); display:flex; align-items:center; gap:8px;"><span style="color:#10B981;">✓</span> Track 2 agents (Lifetime)</li>
             <li style="font-size:13px; margin-bottom:8px; color:rgba(255,255,255,0.7); display:flex; align-items:center; gap:8px;"><span style="color:#10B981;">✓</span> Unlimited tokens (Lifetime)</li>
           </ul>
-          <button class="btn" style="background:#444; color:#aaa; cursor:not-allowed;" disabled>Coming Soon</button>
-          <p style="font-size:11px; color:rgba(255,255,255,0.4); margin-top:12px; line-height:1.4;">We'll notify you once early access batches open. Stay tuned to your inbox!</p>
+          <button class="btn">Get Lifetime Access →</button>
+          <p style="font-size:11px; color:rgba(255,255,255,0.4); margin-top:12px; line-height:1.4;">One-time payment for eternal access.</p>
         </div>
       </div>
     </div>
@@ -204,16 +204,32 @@
 
     window.checkout = async (plan, event) => {
       const btn = event.target.closest('button') || event.currentTarget.querySelector('button');
-      btn.textContent = 'Processing...';
-      setTimeout(async () => {
-        const { error } = await supabase.from('waitlist').update({ payment_status: 'paid', plan_selected: plan, is_priority: true }).eq('email', email);
-        if (!error) {
-           btn.textContent = 'Success! Check email.';
-           btn.style.background = '#10B981';
+      const originalText = btn.textContent;
+      btn.textContent = 'Preparing Checkout...';
+      
+      try {
+        const { data, error } = await supabase.functions.invoke('create-dodo-checkout', {
+          body: { 
+            plan: plan, 
+            email: email,
+            return_url: window.location.origin + '/waitlist?email=' + encodeURIComponent(email) + '&status=success'
+          }
+        });
+
+        if (error) throw error;
+
+        if (data.checkout_url) {
+          window.location.href = data.checkout_url;
         } else {
-           btn.textContent = 'Error. Try again?';
+          throw new Error('No checkout URL received');
         }
-      }, 1000);
+      } catch (err) {
+        console.error('Checkout error:', err);
+        btn.textContent = 'Redirecting...';
+        // Fallback or Alert
+        alert('Could not start checkout. Please try again soon.');
+        btn.textContent = originalText;
+      }
     };
   </script>
 </body>
