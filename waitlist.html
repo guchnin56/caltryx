@@ -166,7 +166,7 @@
           <ul style="list-style:none; margin: 0 0 32px 0; padding: 0;">
             <li style="font-size:14px; margin-bottom:12px; color:#FFFFFF; display:flex; align-items:center; gap:10px;"><span style="color:#10B981; font-weight:bold;">✓</span> everything in birdplan</li>
             <li style="font-size:14px; margin-bottom:12px; color:#FFFFFF; font-weight:600; display:flex; align-items:center; gap:10px;"><span style="color:#10B981; font-weight:bold;">✓</span> 50% discount for 3 months</li>
-            <li style="font-size:14px; margin-bottom:12px; color:rgba(255,255,255,0.7); display:flex; align-items:center; gap:10px;"><span style="color:#10B981; font-weight:bold;">✓</span> Lifetime platform access</li>
+            <li style="font-size:14px; margin-bottom:12px; color:rgba(255,255,255,0.7); display:flex; align-items:center; gap:10px;"><span style="color:#10B981; font-weight:bold;">✓</span> 2 agents tracking free for lifetime</li>
             <li style="font-size:14px; margin-bottom:0; color:rgba(255,255,255,0.7); display:flex; align-items:center; gap:10px;"><span style="color:#10B981; font-weight:bold;">✓</span> Unlimited tokens (Lifetime)</li>
           </ul>
           <button class="btn" style="width: 100%; padding: 18px; border-radius: 100px; font-weight: 600; background: #FFFFFF; color: #1C1C1C; border: none; transition: 0.3s;">Get Lifetime Access</button>
@@ -235,7 +235,11 @@
         }
       } catch (err) {
         console.error('Checkout error detail:', err);
-        alert(`Checkout Error: ${err.message}`);
+        // Special case for generic Supabase error msg to provide more info
+        const displayErr = err.message.includes('non-2xx') 
+          ? `Checkout Connection Error. Please verify that your Dodo API Key and Product IDs are correctly set as Supabase Secrets.`
+          : err.message || 'Unknown checkout error';
+        alert(`Checkout Error: ${displayErr}`);
         btn.textContent = originalText;
       }
     };

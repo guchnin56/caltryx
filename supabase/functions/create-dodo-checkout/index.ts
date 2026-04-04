@@ -11,32 +11,33 @@ serve(async (req) => {
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   };
 
-  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    const { plan, email, return_url } = await req.json();
-    console.log(`Processing checkout for ${email} - Plan: ${plan}`);
+    // 1. Validate Environment Variables
+    if (!DODO_PAYMENTS_KEY) throw new Error("DODO_PAYMENTS_KEY missing from Supabase secrets.");
+    if (!DODO_PRODUCT_STANDARD_ID) throw new Error("DODO_PRODUCT_STANDARD_ID missing.");
+    if (!DODO_PRODUCT_VIP_ID) throw new Error("DODO_PRODUCT_VIP_ID missing.");
+
+    // 2. Parse Request
+    const body = await req.json().catch(() => ({}));
+    const { plan, email, return_url } = body;
     
+    console.log(`Checkout Request: ${email} for ${plan}`);
+
     if (!email || !plan) {
-      return new Response(JSON.stringify({ error: 'Missing email or plan' }), { 
+      return new Response(JSON.stringify({ error: "Email and Plan are required." }), { 
         status: 400, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        headers: { ...corsHeaders, "Content-Type": "application/json" } 
       });
     }
 
     const productId = plan === 'vip' ? DODO_PRODUCT_VIP_ID : DODO_PRODUCT_STANDARD_ID;
-    console.log(`Using Product ID: ${productId}`);
 
-    if (!DODO_PAYMENTS_KEY) {
-      console.error("DODO_PAYMENTS_KEY missing");
-      throw new Error("Server config error (key missing)");
-    }
-
-    // Correct V1 Dodo Payment checkout session endpoint
-    const res = await fetch('https://api.dodopayments.com/v1/checkouts', {
+    // 3. Call Dodo Payments
+    const dodoRes = await fetch('https://api.dodopayments.com/v1/checkouts', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${DODO_PAYMENTS_KEY}`,
@@ -50,30 +51,27 @@ serve(async (req) => {
       })
     });
 
-    const data = await res.json();
-    console.log("Dodo API Response Status:", res.status);
-    console.log("Dodo API Response Full:", JSON.stringify(data));
+    const dodoData = await dodoRes.json().catch(() => ({ error: "Invalid JSON from Dodo API" }));
+    console.log(`Dodo API Status: ${dodoRes.status}`, dodoData);
 
-    if (res.ok) {
-      return new Response(JSON.stringify({ checkout_url: data.checkout_url }), { 
+    if (dodoRes.ok) {
+      return new Response(JSON.stringify({ checkout_url: dodoData.checkout_url }), { 
         status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        headers: { ...corsHeaders, "Content-Type": "application/json" } 
       });
     } else {
-      console.error("Dodo API Error Rejection:", JSON.stringify(data));
-      // Return the inner error message from Dodo if it exists
-      const errorMessage = data.message || data.error?.message || JSON.stringify(data);
-      return new Response(JSON.stringify({ error: errorMessage }), { 
-        status: 400, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      const errorMsg = dodoData.message || dodoData.error?.message || "Dodo API Error";
+      return new Response(JSON.stringify({ error: errorMsg }), { 
+        status: dodoRes.status, 
+        headers: { ...corsHeaders, "Content-Type": "application/json" } 
       });
     }
 
-  } catch (error) {
-    console.error("Internal Server Error:", error.message);
-    return new Response(JSON.stringify({ error: error.message }), { 
+  } catch (err) {
+    console.error("Edge Function Error:", err.message);
+    return new Response(JSON.stringify({ error: err.message }), { 
       status: 500, 
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      headers: { ...corsHeaders, "Content-Type": "application/json" } 
     });
   }
 });
