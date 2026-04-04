@@ -140,37 +140,14 @@
       <span class="position-label">Your Current Position</span>
     </div>
 
-    <div class="urgency-card" style="margin-top: 60px; background: transparent; border: none; padding: 0;">
-      <h3 class="urgency-title" style="font-family: serif; font-size: 38px; margin-bottom: 40px;">Choose Your Priority Access</h3>
-      
-      <div class="plans-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; max-width: 900px; margin: 0 auto;">
-        <!-- Early Bird Plan -->
-        <div class="plan-card" onclick="checkout('standard', event)" style="position: relative; background: #FFFFFF; border: 1px solid rgba(0,0,0,0.05); padding: 40px; border-radius: 32px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; text-align: left; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
-          <div style="position: absolute; top: 20px; right: 20px; background: #2D5BE3; color: white; padding: 6px 14px; border-radius: 100px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px;">50% OFF (3 MONTHS)</div>
-          <div class="plan-name" style="font-size: 16px; font-weight: 600; color: #6B6560; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">Early Bird</div>
-          <div class="plan-price" style="font-size: 48px; font-weight: 700; color: #1C1C1C; margin-bottom: 24px;">$49</div>
-          <ul style="list-style:none; margin: 0 0 32px 0; padding: 0;">
-            <li style="font-size:14px; margin-bottom:12px; color:#1C1C1C; display:flex; align-items:center; gap:10px;"><span style="color:#2D5BE3; font-weight:bold;">→</span> Early access immediately</li>
-            <li style="font-size:14px; margin-bottom:12px; color:#1C1C1C; display:flex; align-items:center; gap:10px;"><span style="color:#2D5BE3; font-weight:bold;">→</span> Full Beta access</li>
-            <li style="font-size:14px; margin-bottom:12px; color:#1C1C1C; display:flex; align-items:center; gap:10px;"><span style="color:#2D5BE3; font-weight:bold;">→</span> 1 month free after launch</li>
-            <li style="font-size:14px; margin-bottom:0; color:#2D5BE3; font-weight:600; display:flex; align-items:center; gap:10px;"><span style="color:#2D5BE3; font-weight:bold;">→</span> 50% discount for 3 months</li>
-          </ul>
-          <button class="btn" style="width: 100%; padding: 18px; border-radius: 100px; font-weight: 600; background: #1C1C1C; color: white; border: none; transition: 0.3s;">Select Plan</button>
-        </div>
-
-        <!-- Lifetime VIP Plan -->
-        <div class="plan-card featured" onclick="checkout('vip', event)" style="position: relative; background: #1C1C1C; border: 1px solid rgba(255,255,255,0.1); padding: 40px; border-radius: 32px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; text-align: left; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
-          <div style="position: absolute; top: 20px; right: 20px; background: #F5F2ED; color: #1C1C1C; padding: 6px 14px; border-radius: 100px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px;">50% OFF (3 MONTHS)</div>
-          <div class="plan-name" style="font-size: 16px; font-weight: 600; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">Lifetime VIP</div>
-          <div class="plan-price" style="font-size: 48px; font-weight: 700; color: #FFFFFF; margin-bottom: 24px;">$149</div>
-          <ul style="list-style:none; margin: 0 0 32px 0; padding: 0;">
-            <li style="font-size:14px; margin-bottom:12px; color:#FFFFFF; display:flex; align-items:center; gap:10px;"><span style="color:#10B981; font-weight:bold;">✓</span> everything in birdplan</li>
-            <li style="font-size:14px; margin-bottom:12px; color:#FFFFFF; font-weight:600; display:flex; align-items:center; gap:10px;"><span style="color:#10B981; font-weight:bold;">✓</span> 50% discount for 3 months</li>
-            <li style="font-size:14px; margin-bottom:12px; color:rgba(255,255,255,0.7); display:flex; align-items:center; gap:10px;"><span style="color:#10B981; font-weight:bold;">✓</span> 2 agents tracking free for lifetime</li>
-            <li style="font-size:14px; margin-bottom:0; color:rgba(255,255,255,0.7); display:flex; align-items:center; gap:10px;"><span style="color:#10B981; font-weight:bold;">✓</span> Unlimited tokens (Lifetime)</li>
-          </ul>
-          <button class="btn" style="width: 100%; padding: 18px; border-radius: 100px; font-weight: 600; background: #FFFFFF; color: #1C1C1C; border: none; transition: 0.3s;">Get Lifetime Access</button>
-        </div>
+    <div class="urgency-card" style="margin-top: 60px; background: #fff; border: 1px solid var(--border); padding: 48px; border-radius: 32px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.05);">
+      <div style="font-size: 48px; margin-bottom: 24px;">⏳</div>
+      <h3 class="urgency-title" style="font-family: var(--serif); font-size: 32px; margin-bottom: 16px;">Pricing Coming Soon</h3>
+      <p class="urgency-text" style="font-size: 18px; color: var(--muted); max-width: 450px; margin: 0 auto 32px auto; line-height: 1.6;">
+        We are finalizing our priority access tiers. You will be notified via email as soon as early bird slots open.
+      </p>
+      <div style="display: inline-block; padding: 12px 24px; background: var(--cream); border-radius: 100px; color: var(--accent); font-weight: 600; font-size: 14px; letter-spacing: 0.5px; text-transform: uppercase;">
+        Stay tuned to your mail
       </div>
     </div>
   </div>
@@ -243,48 +220,6 @@
       }
       loadStatus();
     }
-
-    window.checkout = async (plan, event) => {
-      const btn = event.target.closest('button') || event.currentTarget.querySelector('button');
-      const originalText = btn.textContent;
-      btn.textContent = 'Preparing Checkout...';
-      
-      try {
-        const { data, error } = await supabase.functions.invoke('create-dodo-checkout', {
-          body: { 
-            plan: plan, 
-            email: email,
-            return_url: window.location.origin + '/waitlist?email=' + encodeURIComponent(email) + '&status=success'
-          }
-        });
-
-        if (error) {
-           console.error('Checkout error:', error);
-           let msg = error.message || 'Unknown server error';
-           
-           // If it's the generic non-2xx error, try to get the detail from data
-           if (msg.includes('non-2xx') && data && data.error) {
-             msg = data.error;
-           } else if (msg.includes('non-2xx')) {
-             msg = "Connection rejected. Check Supabase Dashboard -> Edge Functions -> create-dodo-checkout -> Logs for the specific Dodo API error.";
-           }
-           
-           throw new Error(msg);
-        }
-
-        if (data && data.checkout_url) {
-          window.location.href = data.checkout_url;
-        } else if (data && data.error) {
-          throw new Error(data.error);
-        } else {
-          throw new Error('No checkout URL received from function.');
-        }
-      } catch (err) {
-        console.error('Final checkout error detail:', err);
-        alert(`Checkout Error: ${err.message}`);
-        btn.textContent = originalText;
-      }
-    };
   </script>
 </body>
 </html>
