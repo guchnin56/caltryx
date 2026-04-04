@@ -56,7 +56,9 @@ serve(async (req) => {
             <a href="https://caltryx.xyz/waitlist?email=${encodeURIComponent(email)}" class="btn">View Priority Access →</a>
           </div>
           <div class="footer">
-            &copy; 2026 Caltryx. The ultimate AI observability infrastructure.
+            &copy; 2026 Caltryx. The ultimate AI observability infrastructure.<br/>
+            123 Founders Way, Silicon Valley, CA 94025<br/><br/>
+            <a href="https://caltryx.xyz/waitlist?email=${encodeURIComponent(email)}&unsubscribe=true" style="color: #6B6560; text-decoration: underline;">Unsubscribe</a>
           </div>
         </div>
       </body>
@@ -73,9 +75,12 @@ serve(async (req) => {
         from: 'Caltryx <welcome@caltryx.xyz>', 
         to: email, 
         reply_to: 'welcome@caltryx.xyz',
+        headers: {
+          'List-Unsubscribe': `<mailto:unsubscribe@caltryx.xyz?subject=unsubscribe>, <https://caltryx.xyz/waitlist?email=${encodeURIComponent(email)}&unsubscribe=true>`
+        },
         subject: `Your Caltryx Spot: #${position} 🎉`,
         html: html,
-        text: `Welcome to Caltryx! Your spot is secured at #${position}. We're building the ultimate AI observability infrastructure. View priority access here: https://caltryx.xyz/waitlist?email=${encodeURIComponent(email)}`
+        text: `Welcome to Caltryx! Your spot is secured at #${position}. We're building the ultimate AI observability infrastructure.\n\nView priority access here: https://caltryx.xyz/waitlist?email=${encodeURIComponent(email)}\n\nUnsubscribe: https://caltryx.xyz/waitlist?unsubscribe=true`
       })
     });
 
