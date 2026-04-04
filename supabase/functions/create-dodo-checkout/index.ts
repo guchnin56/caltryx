@@ -38,12 +38,12 @@ serve(async (req) => {
 
     const productId = plan === 'vip' ? DODO_PRODUCT_VIP_ID : DODO_PRODUCT_STANDARD_ID;
     
-    // Auto-detect endpoint based on key prefix
+    // Correct base URLs: test.dodopayments.com for test keys, live.dodopayments.com for live
     const baseUrl = DODO_PAYMENTS_KEY?.startsWith('test_') 
       ? 'https://test.dodopayments.com' 
-      : 'https://api.dodopayments.com';
+      : 'https://live.dodopayments.com';
 
-    console.log(`Calling Dodo API: ${baseUrl}/v1/checkouts`);
+    console.log(`Using endpoint: ${baseUrl} | Product: ${productId}`);
 
     const dodoRes = await fetch(`${baseUrl}/v1/checkouts`, {
       method: 'POST',
