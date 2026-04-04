@@ -5,19 +5,35 @@ const DODO_PRODUCT_STANDARD_ID = Deno.env.get("DODO_PRODUCT_STANDARD_ID");
 const DODO_PRODUCT_VIP_ID = Deno.env.get("DODO_PRODUCT_VIP_ID");
 
 serve(async (req) => {
-  // Handle CORS
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  };
+
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST', 'Access-Control-Allow-Headers': 'Content-Type, Authorization' } });
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
     const { plan, email, return_url } = await req.json();
+    console.log(`Processing checkout for ${email} - Plan: ${plan}`);
     
     if (!email || !plan) {
-      return new Response(JSON.stringify({ error: 'Missing email or plan' }), { status: 400 });
+      return new Response(JSON.stringify({ error: 'Missing email or plan' }), { 
+        status: 400, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      });
     }
 
     const productId = plan === 'vip' ? DODO_PRODUCT_VIP_ID : DODO_PRODUCT_STANDARD_ID;
+    console.log(`Using Product ID: ${productId}`);
+
+    if (!DODO_PAYMENTS_KEY) {
+      console.error("DODO_PAYMENTS_KEY is not set in Environment Variables");
+      throw new Error("Payment server configuration error (key missing)");
+    }
 
     // Create Dodo Payments Checkout Session
     const res = await fetch('https://api.dodopayments.com/v1/checkout-sessions', {
@@ -30,28 +46,31 @@ serve(async (req) => {
         product_cart: [{ product_id: productId, quantity: 1 }],
         customer: { email: email },
         return_url: return_url || 'https://caltryx.xyz/waitlist?status=success',
-        payment_link: true // Generate a hosted checkout URL
+        payment_link: true
       })
     });
 
     const data = await res.json();
+    console.log("Dodo API Response Status:", res.status);
 
     if (res.ok) {
       return new Response(JSON.stringify({ checkout_url: data.checkout_url }), { 
         status: 200, 
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       });
     } else {
+      console.error("Dodo API Error:", JSON.stringify(data));
       return new Response(JSON.stringify({ error: data }), { 
         status: 400, 
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       });
     }
 
   } catch (error) {
+    console.error("Internal Server Error:", error.message);
     return new Response(JSON.stringify({ error: error.message }), { 
       status: 500, 
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } 
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
     });
   }
 });

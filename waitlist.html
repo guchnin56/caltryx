@@ -149,10 +149,10 @@
           <div class="plan-name">Early Bird</div>
           <div class="plan-price">$49</div>
           <ul style="list-style:none; margin: 20px 0; padding: 0;">
-            <li style="font-size:13px; margin-bottom:8px; color:var(--muted); display:flex; align-items:center; gap:8px;"><span style="color:#10B981;">✓</span> everything in early bird plan</li>
-            <li style="font-size:13px; margin-bottom:8px; color:#2D5BE3; display:flex; align-items:center; gap:8px;"><span style="color:#10B981;">✓</span> 50% discount for next 3 months</li>
+            <li style="font-size:13px; margin-bottom:8px; color:var(--muted); display:flex; align-items:center; gap:8px;"><span style="color:#10B981;">✓</span> Early access immediately</li>
             <li style="font-size:13px; margin-bottom:8px; color:var(--muted); display:flex; align-items:center; gap:8px;"><span style="color:#10B981;">✓</span> Beta access</li>
             <li style="font-size:13px; margin-bottom:8px; color:var(--muted); display:flex; align-items:center; gap:8px;"><span style="color:#10B981;">✓</span> 1 month free after launch</li>
+            <li style="font-size:13px; margin-bottom:8px; color:var(--muted); display:flex; align-items:center; gap:8px;"><span style="color:#10B981;">✓</span> Special discounts</li>
           </ul>
           <button class="btn">Get Started →</button>
           <p style="font-size:11px; color:#888; margin-top:12px; line-height:1.4;">Instant access to our early beta batches.</p>
@@ -161,8 +161,8 @@
           <div class="plan-name">Lifetime VIP</div>
           <div class="plan-price">$149</div>
           <ul style="list-style:none; margin: 20px 0; padding: 0;">
-            <li style="font-size:13px; margin-bottom:8px; color:rgba(255,255,255,0.7); display:flex; align-items:center; gap:8px;"><span style="color:#10B981;">✓</span> High-priority access</li>
-            <li style="font-size:13px; margin-bottom:8px; color:rgba(255,255,255,0.7); display:flex; align-items:center; gap:8px;"><span style="color:#10B981;">✓</span> Lifetime platform access</li>
+            <li style="font-size:13px; margin-bottom:8px; color:rgba(255,255,255,0.7); display:flex; align-items:center; gap:8px;"><span style="color:#10B981;">✓</span> everything in birdplan</li>
+            <li style="font-size:13px; margin-bottom:8px; color:rgba(255,255,255,1); font-weight:600; display:flex; align-items:center; gap:8px;"><span style="color:#10B981;">✓</span> 3month 50% off</li>
             <li style="font-size:13px; margin-bottom:8px; color:rgba(255,255,255,0.7); display:flex; align-items:center; gap:8px;"><span style="color:#10B981;">✓</span> Track 2 agents (Lifetime)</li>
             <li style="font-size:13px; margin-bottom:8px; color:rgba(255,255,255,0.7); display:flex; align-items:center; gap:8px;"><span style="color:#10B981;">✓</span> Unlimited tokens (Lifetime)</li>
           </ul>
@@ -216,18 +216,20 @@
           }
         });
 
-        if (error) throw error;
+        if (error) {
+           console.error('Supabase function error:', error);
+           throw new Error(error.message || 'Function call failed');
+        }
 
-        if (data.checkout_url) {
+        if (data && data.checkout_url) {
           window.location.href = data.checkout_url;
         } else {
-          throw new Error('No checkout URL received');
+          console.error('Malformed response:', data);
+          throw new Error('No checkout URL received from server');
         }
       } catch (err) {
-        console.error('Checkout error:', err);
-        btn.textContent = 'Redirecting...';
-        // Fallback or Alert
-        alert('Could not start checkout. Please try again soon.');
+        console.error('Checkout error detail:', err);
+        alert(`Checkout Error: ${err.message}. Please try refreshing the page.`);
         btn.textContent = originalText;
       }
     };
