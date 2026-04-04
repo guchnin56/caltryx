@@ -219,27 +219,29 @@
         });
 
         if (error) {
-           console.error('Supabase function error:', error);
-           // Handle non-JSON errors (like text HTML error pages)
-           if (typeof error.message === 'string') {
-             throw new Error(error.message);
+           console.error('Checkout error:', error);
+           let msg = error.message || 'Unknown server error';
+           
+           // If it's the generic non-2xx error, try to get the detail from data
+           if (msg.includes('non-2xx') && data && data.error) {
+             msg = data.error;
+           } else if (msg.includes('non-2xx')) {
+             msg = "Connection rejected. Check Supabase Dashboard -> Edge Functions -> create-dodo-checkout -> Logs for the specific Dodo API error.";
            }
-           throw new Error('Connection failed. Please check if your Dodo Payments Key is correctly set as a Supabase Secret.');
+           
+           throw new Error(msg);
         }
 
         if (data && data.checkout_url) {
           window.location.href = data.checkout_url;
+        } else if (data && data.error) {
+          throw new Error(data.error);
         } else {
-          const detail = data.error || (data.message ? data.message : JSON.stringify(data));
-          throw new Error(detail || 'No checkout link received');
+          throw new Error('No checkout URL received from function.');
         }
       } catch (err) {
-        console.error('Checkout error detail:', err);
-        // Special case for generic Supabase error msg to provide more info
-        const displayErr = err.message.includes('non-2xx') 
-          ? `Checkout Connection Error. Please verify that your Dodo API Key and Product IDs are correctly set as Supabase Secrets.`
-          : err.message || 'Unknown checkout error';
-        alert(`Checkout Error: ${displayErr}`);
+        console.error('Final checkout error detail:', err);
+        alert(`Checkout Error: ${err.message}`);
         btn.textContent = originalText;
       }
     };

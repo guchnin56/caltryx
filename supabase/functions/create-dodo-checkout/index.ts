@@ -11,33 +11,41 @@ serve(async (req) => {
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   };
 
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
   try {
-    // 1. Validate Environment Variables
-    if (!DODO_PAYMENTS_KEY) throw new Error("DODO_PAYMENTS_KEY missing from Supabase secrets.");
-    if (!DODO_PRODUCT_STANDARD_ID) throw new Error("DODO_PRODUCT_STANDARD_ID missing.");
-    if (!DODO_PRODUCT_VIP_ID) throw new Error("DODO_PRODUCT_VIP_ID missing.");
-
-    // 2. Parse Request
     const body = await req.json().catch(() => ({}));
-    const { plan, email, return_url } = body;
     
-    console.log(`Checkout Request: ${email} for ${plan}`);
+    // Diagnostic Log (Visible in Supabase Dashboard -> Edge Functions -> Logs)
+    console.log("--- Checkout Diagnostic ---");
+    console.log("DODO_PAYMENTS_KEY detected:", !!DODO_PAYMENTS_KEY, DODO_PAYMENTS_KEY ? `(Starts with: ${DODO_PAYMENTS_KEY.substring(0, 4)}...)` : "(MISSING)");
+    console.log("STANDARD_ID detected:", !!DODO_PRODUCT_STANDARD_ID, DODO_PRODUCT_STANDARD_ID ? `(Value: ${DODO_PRODUCT_STANDARD_ID})` : "(MISSING)");
+    console.log("VIP_ID detected:", !!DODO_PRODUCT_VIP_ID, DODO_PRODUCT_VIP_ID ? `(Value: ${DODO_PRODUCT_VIP_ID})` : "(MISSING)");
 
-    if (!email || !plan) {
-      return new Response(JSON.stringify({ error: "Email and Plan are required." }), { 
-        status: 400, 
-        headers: { ...corsHeaders, "Content-Type": "application/json" } 
-      });
+    if (body.ping) {
+      return new Response(JSON.stringify({ 
+        pong: true, 
+        secrets: { 
+          key: !!DODO_PAYMENTS_KEY, 
+          std: !!DODO_PRODUCT_STANDARD_ID, 
+          vip: !!DODO_PRODUCT_VIP_ID 
+        }
+      }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    const productId = plan === 'vip' ? DODO_PRODUCT_VIP_ID : DODO_PRODUCT_STANDARD_ID;
+    const { plan, email, return_url } = body;
+    if (!email || !plan) throw new Error("Email and Plan are required.");
 
-    // 3. Call Dodo Payments
-    const dodoRes = await fetch('https://api.dodopayments.com/v1/checkouts', {
+    const productId = plan === 'vip' ? DODO_PRODUCT_VIP_ID : DODO_PRODUCT_STANDARD_ID;
+    
+    // Auto-detect endpoint based on key prefix
+    const baseUrl = DODO_PAYMENTS_KEY?.startsWith('test_') 
+      ? 'https://test.dodopayments.com' 
+      : 'https://api.dodopayments.com';
+
+    console.log(`Calling Dodo API: ${baseUrl}/v1/checkouts`);
+
+    const dodoRes = await fetch(`${baseUrl}/v1/checkouts`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${DODO_PAYMENTS_KEY}`,
@@ -51,8 +59,7 @@ serve(async (req) => {
       })
     });
 
-    const dodoData = await dodoRes.json().catch(() => ({ error: "Invalid JSON from Dodo API" }));
-    console.log(`Dodo API Status: ${dodoRes.status}`, dodoData);
+    const dodoData = await dodoRes.json().catch(() => ({ error: "Invalid JSON response from Dodo Payments" }));
 
     if (dodoRes.ok) {
       return new Response(JSON.stringify({ checkout_url: dodoData.checkout_url }), { 
@@ -60,17 +67,14 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" } 
       });
     } else {
-      const errorMsg = dodoData.message || dodoData.error?.message || "Dodo API Error";
-      return new Response(JSON.stringify({ error: errorMsg }), { 
-        status: dodoRes.status, 
-        headers: { ...corsHeaders, "Content-Type": "application/json" } 
-      });
+      const msg = dodoData.message || (dodoData.error ? JSON.stringify(dodoData.error) : "Dodo API Error");
+      throw new Error(`Dodo API (${dodoRes.status}): ${msg}`);
     }
 
   } catch (err) {
-    console.error("Edge Function Error:", err.message);
+    console.error("CRITICAL ERROR:", err.message);
     return new Response(JSON.stringify({ error: err.message }), { 
-      status: 500, 
+      status: 400, 
       headers: { ...corsHeaders, "Content-Type": "application/json" } 
     });
   }
