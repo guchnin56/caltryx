@@ -14,6 +14,22 @@ CREATE TABLE IF NOT EXISTS public.waitlist (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Trigger to ensure sequential waitlist positions (total count + 1)
+CREATE OR REPLACE FUNCTION public.assign_next_waitlist_position()
+RETURNS TRIGGER AS $$
+BEGIN
+    SELECT COUNT(*) + 1 INTO NEW.waitlist_position FROM public.waitlist;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS tr_assign_next_waitlist_position ON public.waitlist;
+CREATE TRIGGER tr_assign_next_waitlist_position
+    BEFORE INSERT ON public.waitlist
+    FOR EACH ROW
+    EXECUTE FUNCTION public.assign_next_waitlist_position();
+
+
 -- Enable Row Level Security (RLS)
 ALTER TABLE public.waitlist ENABLE ROW LEVEL SECURITY;
 
