@@ -125,6 +125,19 @@
     }
     .plan-card.featured .btn { background: #fff; color: var(--dark); }
     
+    .footer {
+      border-top: 1px solid var(--border);
+      width: 100%;
+      max-width: 600px;
+      margin-top: 80px;
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+    .footer a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    
     @media (max-width: 600px) {
       .plans-grid { grid-template-columns: 1fr; }
     }
@@ -150,6 +163,11 @@
         Stay tuned to your mail
       </div>
     </div>
+
+    <footer class="footer">
+      &copy; 2026 Caltryx. The ultimate AI observability infrastructure built by <a href="https://x.com/showslikesummu" target="_blank">summu</a>.<br/>
+      Hyderabad, India.
+    </footer>
   </div>
 
   <script type="module">

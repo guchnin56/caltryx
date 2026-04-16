@@ -77,8 +77,8 @@ Deno.serve(async (req) => {
                 <a href="${Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '.xyz') || 'https://caltryx.xyz'}/waitlist?email=${encodeURIComponent(email)}&status=success&plan=${planSelected}" class="btn">View Your Status →</a>
               </div>
               <div class="footer">
-                &copy; 2026 Caltryx. The ultimate AI observability infrastructure.<br/>
-                Stay tuned. Beta is opening soon.
+                &copy; 2026 Caltryx. AI Observability built by <a href="https://x.com/showslikesummu" style="color: #2D5BE3; text-decoration: none;">summu</a>.<br/>
+                Hyderabad, India.
               </div>
             </div>
           </body>

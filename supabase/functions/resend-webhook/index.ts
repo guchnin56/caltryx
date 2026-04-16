@@ -33,8 +33,8 @@ serve(async (req) => {
           .position-hero { margin: 32px 0; }
           .position-num { font-family: serif; font-style: italic; font-size: 80px; line-height: 1; color: #1C1C1C; margin: 0; }
           .position-label { font-size: 14px; font-weight: 600; color: #6B6560; text-transform: uppercase; letter-spacing: 1px; }
-          .footer { padding: 32px; background: #F9F7F5; text-align: center; color: #6B6560; font-size: 14px; }
-          .btn { display: inline-block; background: #2D5BE3; color: #FFFFFF; text-decoration: none; padding: 16px 32px; border-radius: 100px; font-weight: 600; margin-top: 24px; }
+          .footer { padding: 32px; background: #F9F7F5; text-align: center; color: #6B6560; font-size: 14px; line-height: 1.6; }
+          .btn { display: inline-block; background: #2D5BE3; color: #FFFFFF; text-decoration: none; padding: 18px 40px; border-radius: 100px; font-weight: 700; margin-top: 24px; font-size: 16px; box-shadow: 0 4px 12px rgba(45, 91, 227, 0.2); }
         </style>
       </head>
       <body>
@@ -53,11 +53,11 @@ serve(async (req) => {
             </div>
             
             <p style="color: #6B6560; font-size: 15px; line-height: 1.6;">Want to skip the queue? Check out our priority early access plans to get instant beta access.</p>
-            <a href="https://caltryx.xyz/waitlist?email=${encodeURIComponent(email)}" class="btn">View Priority Access →</a>
+            <a href="https://caltryx.xyz/waitlistpricing" class="btn">View Priority Access →</a>
           </div>
           <div class="footer">
-            &copy; 2026 Caltryx. The ultimate AI observability infrastructure.<br/>
-            123 Founders Way, Silicon Valley, CA 94025<br/><br/>
+            &copy; 2026 Caltryx. The ultimate AI observability infrastructure built by <a href="https://x.com/showslikesummu" style="color: #2D5BE3; text-decoration: none;">summu</a>.<br/>
+            Hyderabad, India.<br/><br/>
             <a href="https://caltryx.xyz/waitlist?email=${encodeURIComponent(email)}&unsubscribe=true" style="color: #6B6560; text-decoration: underline;">Unsubscribe</a>
           </div>
         </div>

@@ -15,7 +15,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
-        waitlist: resolve(__dirname, 'waitlist.html')
+        waitlist: resolve(__dirname, 'waitlist.html'),
+        waitlistpricing: resolve(__dirname, 'waitlistpricing.html')
       }
     }
   }

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Priority Pricing | Caltryx</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream: #F5F2ED; --cream-dark: #EDE9E2; --dark: #1C1C1C;
+      --muted: #6B6560; --accent: #2D5BE3; --accent-light: #3D6BF3;
+      --border: rgba(28,28,28,0.12);
+      --serif: 'Playfair Display', Georgia, serif;
+      --sans: 'DM Sans', sans-serif;
+    }
+    body {
+      font-family: var(--sans);
+      background: var(--cream);
+      color: var(--dark);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 80px 20px;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    .header { text-align: center; max-width: 700px; margin-bottom: 60px; }
+    .badge {
+      display: inline-block;
+      background: rgba(45, 91, 227, 0.08);
+      color: var(--accent);
+      border-radius: 100px;
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 24px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    h1 {
+      font-family: var(--serif);
+      font-size: 48px;
+      font-weight: 500;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+    h1 em { font-style: italic; color: var(--accent); }
+    .subtitle {
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.6;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .plans-container {
+      display: grid;
+      grid-template-columns: repeat(2, 350px);
+      gap: 32px;
+      max-width: 1000px;
+      margin-bottom: 80px;
+    }
+    .plan-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 32px;
+      padding: 48px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    }
+    .plan-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.06);
+    }
+    .plan-card.featured {
+      background: var(--dark);
+      color: #fff;
+      border: none;
+    }
+    .plan-tag {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 6px 12px;
+      background: rgba(45, 91, 227, 0.1);
+      color: var(--accent);
+      border-radius: 100px;
+    }
+    .plan-card.featured .plan-tag {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+    .plan-name {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+      opacity: 0.7;
+    }
+    .plan-price {
+      font-family: var(--serif);
+      font-size: 42px;
+      margin-bottom: 32px;
+    }
+    .plan-price span { font-size: 18px; opacity: 0.6; font-style: italic; }
+    
+    .features-list {
+      list-style: none;
+      margin-bottom: 40px;
+      flex-grow: 1;
+    }
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      font-size: 15px;
+    }
+    .feature-icon {
+      width: 20px;
+      height: 20px;
+      background: rgba(45, 91, 227, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+    .plan-card.featured .feature-icon {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      border-radius: 100px;
+      font-weight: 600;
+      font-size: 15px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-outline {
+      border: 1px solid var(--border);
+      color: var(--dark);
+    }
+    .btn-solid {
+      background: #fff;
+      color: var(--dark);
+    }
+    .plan-card:not(.featured) .btn-outline:hover {
+      background: var(--cream);
+    }
+    .plan-card.featured .btn-solid:hover {
+      opacity: 0.9;
+    }
+
+    .coming-soon-banner {
+      background: var(--cream-dark);
+      padding: 12px 24px;
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-top: 40px;
+      text-align: center;
+    }
+
+    .footer {
+      border-top: 1px solid var(--border);
+      width: 100%;
+      max-width: 1000px;
+      margin-top: 80px;
+      padding-top: 40px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+    .footer a { color: var(--accent); text-decoration: none; font-weight: 500; }
+
+    @media (max-width: 800px) {
+      .plans-container { grid-template-columns: 1fr; width: 100%; max-width: 400px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="badge">Early Bird Priority</div>
+    <h1>Secure your <em>Early Access</em> spot.</h1>
+    <p class="subtitle">Skip the queue and get instant access to the most powerful AI observability platform.</p>
+  </div>
+
+  <div class="plans-container">
+    <!-- Plan 1 -->
+    <div class="plan-card">
+      <div class="plan-tag">Coming Soon</div>
+      <div class="plan-name">Early Bird</div>
+      <div class="plan-price">$29<span> / month</span></div>
+      <ul class="features-list">
+        <li class="feature-item"><span class="feature-icon">✓</span> Real-time Cost Tracking</li>
+        <li class="feature-item"><span class="feature-icon">✓</span> Smart Guardrails</li>
+        <li class="feature-item"><span class="feature-icon">✓</span> Advanced Tracing (100k events/mo)</li>
+        <li class="feature-item"><span class="feature-icon">✓</span> Single Project Access</li>
+      </ul>
+      <div class="btn btn-outline">Slots opening soon</div>
+    </div>
+
+    <!-- Plan 2 -->
+    <div class="plan-card featured">
+      <div class="plan-tag">Waitlist Exclusive</div>
+      <div class="plan-name">Lifetime VIP</div>
+      <div class="plan-price">$199<span> (One-time)</span></div>
+      <ul class="features-list">
+        <li class="feature-item"><span class="feature-icon">✓</span> Everything in Early Bird</li>
+        <li class="feature-item"><span class="feature-icon">✓</span> Support for 5 Projects</li>
+        <li class="feature-item"><span class="feature-icon">✓</span> Priority Beta Features</li>
+        <li class="feature-item"><span class="feature-icon">✓</span> <strong>Unlimited</strong> Tracing Events</li>
+      </ul>
+      <div class="btn btn-solid">Reserve your spot</div>
+    </div>
+  </div>
+
+  <div class="coming-soon-banner">
+    Pricing tiers are being finalized. <strong>Stick to your mail</strong> for the official launch invite.
+  </div>
+
+  <footer class="footer">
+    &copy; 2026 Caltryx. The ultimate AI observability infrastructure built by <a href="https://x.com/showslikesummu" target="_blank">summu</a>.<br/>
+    Hyderabad, India.
+  </footer>
+</body>
+</html>
