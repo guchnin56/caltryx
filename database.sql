@@ -35,15 +35,15 @@ ALTER TABLE public.waitlist ENABLE ROW LEVEL SECURITY;
 
 -- 1. Allow anonymous inserts to the waitlist from your frontend
 CREATE POLICY "Allow public inserts to waitlist"
-ON public.waitlist FOR INSERT TO anon
+ON public.waitlist FOR INSERT TO public
 WITH CHECK (true);
 
 -- 2. Allow public reads to get the counter (everyone can count)
 CREATE POLICY "Allow public select on waitlist"
-ON public.waitlist FOR SELECT TO anon
+ON public.waitlist FOR SELECT TO public
 USING (true);
 
 -- 3. Allow public updates to the waitlist (useful for client-side payment mocks)
 CREATE POLICY "Allow public updates to waitlist"
-ON public.waitlist FOR UPDATE TO anon
+ON public.waitlist FOR UPDATE TO public
 USING (true);
