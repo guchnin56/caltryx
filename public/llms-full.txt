@@ -1,0 +1,33 @@
+# Caltryx: Comprehensive AI Operations Intelligence
+
+Caltryx provides a full suite of tools designed to move AI startups from "blind testing" to "operational excellence". Our infrastructure focus is on cost transparency, safety guardrails, and budget management for Large Language Model (LLM) applications.
+
+## Technical Core
+Caltryx integrates with your existing AI stack (OpenAI, Anthropic, etc.) to capture token usage and metadata. Unlike traditional proxies, Caltryx uses an asynchronous reporting approach to ensure that your sensitive prompts never leave your local environment, keeping your intellectual property and user data private.
+
+## Operational Modules
+
+### 1. Per-Agent Cost Tracking
+Attribute every dollar spent to specific agents or features. 
+- Distinguish between a "Research Agent" versus a "Chat Agent".
+- Identify which models (GPT-4o, Claude 3.5 Sonnet, etc.) are driving the most value or waste.
+
+### 2. Real-Time Budget Alerts
+Set monthly limits for individual agents.
+- Receive immediate notifications via Webhooks, Slack, or Email.
+- Act before a looping agent drains your monthly budget in hours.
+
+### 3. Unit Economics Dashboard
+Map LLM spend back to your business metrics.
+- Calculate Cost-per-Successful-Outcome.
+- Analyze margin stability across different pricing tiers.
+
+## Background Reading
+Our blog provides deep dives into the economics of AI:
+- [Why LLM Costs Kill AI Startups](https://www.caltryx.xyz/blogs): A mathematical analysis of AI unit economics and survival strategies.
+- Coming soon: Optimizing Prompt Token Windows for Cost Reduction.
+
+## Integration & Support
+Join our waitlist for documentation and SDK access.
+- [Join Waitlist](https://www.caltryx.xyz/waitlist)
+- [Priority Access Pricing](https://www.caltryx.xyz/waitlistpricing)

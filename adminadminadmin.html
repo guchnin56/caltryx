@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Caltryx</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500;600&family=DM+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cream: #F5F2ED;
+            --dark: #1C1C1C;
+            --accent: #2D5BE3;
+            --border: rgba(28,28,28,0.1);
+            --sans: 'DM Sans', sans-serif;
+        }
+
+        body {
+            font-family: var(--sans);
+            background: var(--cream);
+            color: var(--dark);
+            margin: 0; padding: 0;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh;
+        }
+
+        /* LOGIN FORM */
+        #login-overlay {
+            position: fixed; inset: 0; background: var(--cream);
+            display: flex; justify-content: center; align-items: center; z-index: 1000;
+        }
+
+        .login-card {
+            background: #fff; padding: 48px; border-radius: 24px;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.1);
+            width: 100%; max-width: 400px;
+            text-align: center;
+        }
+
+        .login-card h1 { font-family: 'Playfair Display', serif; margin-bottom: 32px; }
+        .login-card input {
+            width: 100%; padding: 14px; margin-bottom: 16px;
+            border-radius: 8px; border: 1px solid var(--border);
+            font-family: var(--sans); font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            width: 100%; padding: 14px; background: var(--dark);
+            color: #fff; border: none; border-radius: 8px;
+            font-weight: 600; cursor: pointer; transition: background 0.2s;
+        }
+
+        .btn:hover { background: var(--accent); }
+
+        /* DASHBOARD */
+        #dashboard { display: none; width: 100%; max-width: 1000px; padding: 48px; }
+
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 48px; }
+        .header h2 { font-family: 'Playfair Display', serif; font-size: 32px; margin: 0; }
+
+        .upload-section { background: #fff; padding: 40px; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 40px; }
+        .upload-section h3 { margin-top: 0; margin-bottom: 24px; }
+
+        textarea {
+            width: 100%; height: 200px; padding: 20px;
+            border-radius: 12px; border: 1px solid var(--border);
+            font-family: 'DM Mono', monospace; font-size: 13px;
+            background: #FAFAFA; margin-bottom: 24px;
+            resize: vertical; box-sizing: border-box;
+        }
+
+        .preview-area {
+            background: #F8FAFC; border-radius: 12px; padding: 24px;
+            margin-bottom: 24px; border: 1px dashed var(--border);
+            display: none;
+        }
+
+        .preview-label { font-size: 12px; color: var(--accent); font-weight: 600; text-transform: uppercase; margin-bottom: 8px; }
+        .preview-val { font-size: 15px; margin-bottom: 16px; color: var(--dark); font-weight: 500; }
+
+        .status { margin-top: 16px; font-size: 14px; font-weight: 500; }
+        .status.success { color: #10B981; }
+        .status.error { color: #EF4444; }
+
+        .post-list { margin-top: 40px; }
+        .post-item {
+            background: #fff; padding: 20px 24px; border-radius: 12px;
+            border: 1px solid var(--border); display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- AUTH OVERLAY -->
+    <div id="login-overlay">
+        <div class="login-card">
+            <h1>Caltryx Admin</h1>
+            <input type="email" id="email" placeholder="Email (caltryx7@gmail.com)" value="caltryx7@gmail.com">
+            <input type="password" id="password" placeholder="Password">
+            <button class="btn" id="login-btn">Secure Login</button>
+            <div id="login-status" class="status"></div>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD -->
+    <div id="dashboard">
+        <div class="header">
+            <h2>Dashboard<span>.</span></h2>
+            <button class="btn" id="logout-btn" style="width: auto; padding: 10px 20px; font-size: 12px;">Sign Out</button>
+        </div>
+
+        <div class="upload-section">
+            <h3>Upload New Post</h3>
+            <p style="font-size: 14px; color: #6B7280; margin-bottom: 20px;">Paste the full HTML code of your blog post (like blog-post.html) below. Caltryx will automatically extract the content.</p>
+            
+            <textarea id="html-input" placeholder="Paste HTML here..."></textarea>
+            
+            <button class="btn" id="parse-btn">Parse Content</button>
+
+            <div id="preview" class="preview-area">
+                <div class="preview-label">Title</div>
+                <div id="prev-title" class="preview-val"></div>
+                
+                <div class="preview-label">Slug</div>
+                <div id="prev-slug" class="preview-val"></div>
+                
+                <div class="preview-label">Meta Description</div>
+                <div id="prev-meta" class="preview-val"></div>
+
+                <div class="preview-label">Excerpt</div>
+                <div id="prev-excerpt" class="preview-val"></div>
+                
+                <button class="btn" id="publish-btn" style="background: var(--accent);">Publish to Production</button>
+            </div>
+
+            <div id="upload-status" class="status"></div>
+        </div>
+
+        <div class="post-list">
+            <h3>Recent Posts</h3>
+            <div id="posts-container">
+                <!-- Posts will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+<script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+    const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+    const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const loginOverlay = document.getElementById('login-overlay');
+    const dashboard = document.getElementById('dashboard');
+    const loginStatus = document.getElementById('login-status');
+    const postsContainer = document.getElementById('posts-container');
+
+    let parsedData = null;
+
+    // --- AUTHENTICATION ---
+    async function checkUser() {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user && user.email === 'caltryx7@gmail.com') {
+            showDashboard();
+        }
+    }
+
+    function showDashboard() {
+        loginOverlay.style.display = 'none';
+        dashboard.style.display = 'block';
+        loadPosts();
+    }
+
+    document.getElementById('login-btn').onclick = async () => {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        
+        loginStatus.textContent = 'Authenticating...';
+        
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        
+        if (error) {
+            loginStatus.textContent = 'Error: ' + error.message;
+            loginStatus.className = 'status error';
+        } else if (data.user.email !== 'caltryx7@gmail.com') {
+            loginStatus.textContent = 'Unauthorized access.';
+            loginStatus.className = 'status error';
+            await supabase.auth.signOut();
+        } else {
+            showDashboard();
+        }
+    };
+
+    document.getElementById('logout-btn').onclick = async () => {
+        await supabase.auth.signOut();
+        location.reload();
+    };
+
+    // --- PARSING LOGIC ---
+    document.getElementById('parse-btn').onclick = () => {
+        const html = document.getElementById('html-input').value;
+        if (!html) return;
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        const title = doc.querySelector('title')?.innerText.split('|')[0].trim() || 'Untitled Post';
+        const meta = doc.querySelector('meta[name="description"]')?.content || '';
+        const articleHtml = doc.querySelector('.article-wrap')?.innerHTML || '';
+        const excerpt = doc.querySelector('.lead')?.innerText || '';
+        
+        // Generate slug from title
+        const slug = title.toLowerCase()
+            .replace(/[^\w ]+/g, '')
+            .replace(/ +/g, '-');
+
+        parsedData = { title, slug, meta_description: meta, content_html: articleHtml, excerpt };
+
+        document.getElementById('prev-title').innerText = title;
+        document.getElementById('prev-slug').innerText = slug;
+        document.getElementById('prev-meta').innerText = meta;
+        document.getElementById('prev-excerpt').innerText = excerpt;
+        
+        document.getElementById('preview').style.display = 'block';
+    };
+
+    // --- PUBLISH LOGIC ---
+    document.getElementById('publish-btn').onclick = async () => {
+        if (!parsedData) return;
+        
+        const status = document.getElementById('upload-status');
+        status.textContent = 'Uploading to Caltryx...';
+        status.className = 'status';
+
+        const { error } = await supabase
+            .from('blogs')
+            .upsert(parsedData, { onConflict: 'slug' });
+
+        if (error) {
+            status.textContent = 'Upload Failed: ' + error.message;
+            status.className = 'status error';
+        } else {
+            status.textContent = 'Post Published Successfully!';
+            status.className = 'status success';
+            loadPosts();
+            document.getElementById('preview').style.display = 'none';
+            document.getElementById('html-input').value = '';
+        }
+    };
+
+    async function loadPosts() {
+        const { data, error } = await supabase.from('blogs').select('title, slug, created_at').order('created_at', { ascending: false });
+        if (data) {
+            postsContainer.innerHTML = data.map(p => `
+                <div class="post-item">
+                    <div>
+                        <strong>${p.title}</strong><br>
+                        <span style="font-size: 11px; color: #6B7280; font-family: 'DM Mono';">/${p.slug}</span>
+                    </div>
+                    <a href="/blog-post.html?s=${p.slug}" target="_blank" style="font-size: 12px; color: var(--accent); text-decoration: none; font-weight: 600;">View Live</a>
+                </div>
+            `).join('');
+        }
+    }
+
+    checkUser();
+</script>
+
+</body>
+</html>

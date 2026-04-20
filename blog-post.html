@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Caltryx Blog</title>
+<meta name="description" id="meta-desc" content="Caltryx Blog — Insights on AI Cost Intelligence and LLM operations.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --sky: #29B6E8;
+    --void: #080D18;
+    --void-mid: #101826;
+    --slate: #5A6A80;
+    --rose: #F43F5E;
+    --amber: #F59E0B;
+    --white: #ffffff;
+    --bg: #F8FAFC;
+    --text: #111827;
+    --muted: #6B7280;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    display: none; /* Hidden until content loaded */
+  }
+
+  /* HERO IMAGE */
+  .hero {
+    width: 100%;
+    height: 560px;
+    background: var(--void);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 64px;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(41,182,232,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(41,182,232,0.05) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  .hero-glow {
+    position: absolute; top: -100px; right: -100px;
+    width: 600px; height: 600px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(41,182,232,0.12) 0%, transparent 60%);
+  }
+
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(41,182,232,0.15);
+    border: 1px solid rgba(41,182,232,0.3);
+    color: var(--sky);
+    font-size: 12px; font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 7px 16px; border-radius: 100px;
+    margin-bottom: 24px; width: fit-content;
+    font-family: 'DM Mono', monospace;
+    position: relative; z-index: 2;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 56px; font-weight: 800;
+    color: #fff; line-height: 1.05;
+    letter-spacing: -0.03em;
+    max-width: 900px;
+    position: relative; z-index: 2;
+    margin-bottom: 20px;
+  }
+
+  .hero h1 em { color: var(--sky); font-style: normal; }
+
+  .hero-meta {
+    display: flex; align-items: center; gap: 24px;
+    position: relative; z-index: 2;
+  }
+
+  .hero-meta span {
+    font-size: 13px; color: var(--slate);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .hero-meta span.dot { color: rgba(255,255,255,0.15); }
+
+  /* ARTICLE */
+  .article-wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 72px 24px 120px;
+  }
+
+  .article-wrap h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px; font-weight: 700;
+    color: var(--void); line-height: 1.2;
+    margin: 56px 0 20px;
+    letter-spacing: -0.01em;
+  }
+
+  .article-wrap p {
+    font-size: 17px; color: #374151;
+    line-height: 1.75; margin-bottom: 20px;
+  }
+
+  /* Utility classes from original template */
+  .callout { background: var(--void-mid); border-left: 3px solid var(--sky); border-radius: 0 8px 8px 0; padding: 24px 28px; margin: 32px 0; }
+  .callout p { color: rgba(255,255,255,0.75); font-size: 16px; margin: 0; }
+  .callout p strong { color: var(--sky); }
+  .callout.danger { border-left-color: var(--rose); background: #1A0008; }
+  .callout.danger p strong { color: var(--rose); }
+
+  .math-table { width: 100%; border-collapse: collapse; margin: 32px 0; font-size: 15px; font-family: 'DM Mono', monospace; }
+  .math-table th { background: var(--void); color: #fff; padding: 12px 16px; text-align: left; font-size: 12px; text-transform: uppercase; }
+  .math-table td { padding: 14px 16px; border-bottom: 1px solid #E5E7EB; color: var(--text); }
+
+  .cta-block {
+    background: var(--void);
+    border-radius: 12px; padding: 48px;
+    text-align: center; margin-top: 64px;
+  }
+
+  .cta-block h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 32px; font-weight: 800;
+    color: #fff; margin-bottom: 16px;
+    letter-spacing: -0.02em;
+  }
+
+  .cta-block h3 em { color: var(--sky); font-style: normal; }
+
+  .cta-block p { color: var(--slate); font-size: 17px; margin-bottom: 32px; }
+
+  .cta-btn {
+    display: inline-block;
+    background: var(--sky); color: var(--void);
+    font-family: 'Syne', sans-serif;
+    font-size: 15px; font-weight: 700;
+    padding: 14px 36px; border-radius: 8px;
+    text-decoration: none;
+    letter-spacing: 0.01em;
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO IMAGE -->
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-tag">AI Operations</div>
+  <h1 id="dynamic-title">Loading post...</h1>
+  <div class="hero-meta">
+    <span>Caltryx Blog</span>
+    <span class="dot">·</span>
+    <span id="dynamic-date">...</span>
+  </div>
+</div>
+
+<!-- ARTICLE -->
+<div class="article-wrap" id="dynamic-content">
+</div>
+
+<div class="article-wrap" style="padding-top: 0;">
+    <div class="cta-block">
+        <h3>Track every dollar before it<br>becomes a <em>crisis</em></h3>
+        <p>Caltryx gives AI startups per-agent cost tracking, budget alerts, and real-time spend visibility.</p>
+        <a href="https://caltryx.xyz" class="cta-btn">Join the Waitlist → caltryx.xyz</a>
+    </div>
+</div>
+
+<script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+    const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+    const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function loadPost() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const slug = urlParams.get('s');
+
+        if (!slug) {
+            window.location.href = '/blogs';
+            return;
+        }
+
+        const { data, error } = await supabase
+            .from('blogs')
+            .select('*')
+            .eq('slug', slug)
+            .single();
+
+        if (error || !data) {
+            console.error('Error loading post:', error);
+            document.getElementById('dynamic-title').innerText = 'Post Not Found';
+            document.body.style.display = 'block';
+            return;
+        }
+
+        // Update Content
+        document.title = `${data.title} | Caltryx Blog`;
+        if (document.getElementById('meta-desc')) {
+            document.getElementById('meta-desc').content = data.meta_description || '';
+        }
+        document.getElementById('dynamic-title').innerText = data.title;
+        document.getElementById('dynamic-date').innerText = new Date(data.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        document.getElementById('dynamic-content').innerHTML = data.content_html;
+
+        document.body.style.display = 'block';
+    }
+
+    loadPost();
+</script>
+
+</body>
+</html>

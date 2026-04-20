@@ -16,7 +16,10 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
         waitlist: resolve(__dirname, 'waitlist.html'),
-        waitlistpricing: resolve(__dirname, 'waitlistpricing.html')
+        waitlistpricing: resolve(__dirname, 'waitlistpricing.html'),
+        blogs: resolve(__dirname, 'blogs.html'),
+        'blog-post': resolve(__dirname, 'blog-post.html'),
+        adminadminadmin: resolve(__dirname, 'adminadminadmin.html')
       }
     }
   }

@@ -1,0 +1,17 @@
+# Caltryx: AI Cost Observability & Guardrail Infrastructure
+
+Caltryx is the intelligence layer for AI startups that helps track, optimize, and control LLM costs in real-time.
+
+## Summary
+Most AI startups struggle with unpredictable LLM bills. Caltryx provides the monitoring, budget alerts, and guardrail infrastructure needed to build sustainable AI products without compromising on data privacy.
+
+## Features
+- **Real-time Cost Observability**: Track spend per agent, per user, or per workflow.
+- **Budget Infrastructure**: Set granular budgets and receive alerts before spikes become crises.
+- **Privacy-First**: Reporting-only approach that doesn't requires proxying your prompts.
+- **Unit Economics**: Gain clear visibility into your gross margins and user-level costs.
+
+## Key Pages
+- [Homepage](https://www.caltryx.xyz/)
+- [Blogs](https://www.caltryx.xyz/blogs): Insights on LLM cost management and AI operations.
+- [Pricing & Waitlist](https://www.caltryx.xyz/waitlistpricing): Priority access plans.
